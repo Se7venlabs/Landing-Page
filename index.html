@@ -94,15 +94,28 @@
     margin-top: 2px;
   }
 
-  .nav-beta {
-    font-family: var(--font-body);
+  .nav-countdown {
+    font-family: var(--font-mono);
     font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.1em;
+    font-weight: 400;
+    letter-spacing: 0.06em;
     color: var(--accent);
     border: 1px solid var(--accent-border);
     padding: 6px 14px;
     border-radius: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-countdown .cd-label {
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .nav-countdown .cd-time {
+    color: var(--accent);
+    font-weight: 700;
   }
 
   /* ── HERO ── */
@@ -238,62 +251,6 @@
     display: inline-block;
   }
   .btn-hero-secondary:hover { border-color: rgba(138,92,255,0.6); color: var(--white); }
-
-  .hero-countdown {
-    margin-top: 36px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    opacity: 0;
-    animation: fadeUp 0.9s ease 0.7s forwards;
-  }
-
-  .countdown-label {
-    font-family: var(--font-body);
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-
-  .countdown-timer {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-  }
-
-  .countdown-block {
-    background: var(--bg-card);
-    border: 1px solid var(--border2);
-    border-radius: 4px;
-    padding: 10px 14px;
-    text-align: center;
-    min-width: 60px;
-  }
-  .countdown-num {
-    font-family: var(--font-display);
-    font-size: 30px;
-    font-weight: 800;
-    line-height: 1;
-    color: var(--white);
-  }
-  .countdown-unit {
-    font-family: var(--font-body);
-    font-size: 8px;
-    letter-spacing: 0.14em;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-top: 3px;
-  }
-  .countdown-sep {
-    font-family: var(--font-display);
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--accent);
-    margin-bottom: 6px;
-    opacity: 0.5;
-  }
 
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(24px); }
@@ -794,7 +751,10 @@
       <div class="nav-logo">Royalt<span>ē</span></div>
       <div class="nav-sub">Music Audit Intelligence</div>
     </div>
-    <div class="nav-beta">// LAUNCHING SOON</div>
+    <div class="nav-countdown">
+      <span class="cd-label">// launching in</span>
+      <span class="cd-time" id="nav-cd">--d --h --m --s</span>
+    </div>
   </nav>
 
   <!-- HERO -->
@@ -814,30 +774,6 @@
     <div class="hero-ctas">
       <a href="#capture" class="btn-hero-primary">Get Early Access</a>
       <a href="#tease" class="btn-hero-secondary">See the Audit →</a>
-    </div>
-    <div class="hero-countdown">
-      <div class="countdown-label">// launching in</div>
-      <div class="countdown-timer">
-        <div class="countdown-block">
-          <div class="countdown-num" id="cd-days">30</div>
-          <div class="countdown-unit">days</div>
-        </div>
-        <div class="countdown-sep">:</div>
-        <div class="countdown-block">
-          <div class="countdown-num" id="cd-hours">00</div>
-          <div class="countdown-unit">hours</div>
-        </div>
-        <div class="countdown-sep">:</div>
-        <div class="countdown-block">
-          <div class="countdown-num" id="cd-mins">00</div>
-          <div class="countdown-unit">mins</div>
-        </div>
-        <div class="countdown-sep">:</div>
-        <div class="countdown-block">
-          <div class="countdown-num" id="cd-secs">00</div>
-          <div class="countdown-unit">secs</div>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -905,7 +841,7 @@
       <p class="capture-sub">Join the waitlist. Get your full Royaltē audit — all 6 modules, verified data only — delivered within 12–24 hours at launch. Free.</p>
 
       <div class="capture-perks">
-        <div class="perk-row"><div class="perk-dot"></div><span>First access when Royaltē launches in 90 days</span></div>
+        <div class="perk-row"><div class="perk-dot"></div><span>First access when Royaltē launches June 1st</span></div>
         <div class="perk-row"><div class="perk-dot"></div><span>Free full audit — verified data, no estimates</span></div>
         <div class="perk-row"><div class="perk-dot"></div><span>Early access to every future Royaltē release</span></div>
       </div>
@@ -926,7 +862,7 @@
 
       <div id="success-state">
         <div class="success-check">✓ you're on the list</div>
-        <div class="success-h">We'll find you<br/><span>in 90 days.</span></div>
+        <div class="success-h">We'll find you<br/><span>June 1st.</span></div>
         <div class="success-body">
           // audit request received<br/>
           // added to early access — all future releases<br/>
@@ -956,28 +892,23 @@
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZyZnFiYmtibXJ1eHBmc3pkZXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMDY4MzksImV4cCI6MjA5MTc4MjgzOX0.8CPDVzo5zoNcraiZH4PxkmnMqZGlCy5hde_xEyTkyt4';
   const TABLE_NAME = 'waitlist';
 
-  /* ── LAUNCH DATE ── */
-  const LAUNCH_DATE = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+  /* ── LAUNCH DATE: JUNE 1, 2026 ── */
+  const LAUNCH_DATE = new Date('2026-06-01T00:00:00');
 
   /* ── COUNTDOWN ── */
   function updateCountdown() {
     const now = new Date();
     const diff = LAUNCH_DATE - now;
+    const el = document.getElementById('nav-cd');
     if (diff <= 0) {
-      document.getElementById('cd-days').textContent = '00';
-      document.getElementById('cd-hours').textContent = '00';
-      document.getElementById('cd-mins').textContent = '00';
-      document.getElementById('cd-secs').textContent = '00';
+      el.textContent = 'LIVE NOW';
       return;
     }
     const d = Math.floor(diff / 86400000);
     const h = Math.floor((diff % 86400000) / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
     const s = Math.floor((diff % 60000) / 1000);
-    document.getElementById('cd-days').textContent = String(d).padStart(2,'0');
-    document.getElementById('cd-hours').textContent = String(h).padStart(2,'0');
-    document.getElementById('cd-mins').textContent = String(m).padStart(2,'0');
-    document.getElementById('cd-secs').textContent = String(s).padStart(2,'0');
+    el.textContent = d + 'd ' + String(h).padStart(2,'0') + 'h ' + String(m).padStart(2,'0') + 'm ' + String(s).padStart(2,'0') + 's';
   }
   updateCountdown();
   setInterval(updateCountdown, 1000);
@@ -1046,7 +977,7 @@
     document.getElementById('form-wrap').style.display = 'none';
     const s = document.getElementById('success-state');
     s.classList.add('visible');
-    const shareText = encodeURIComponent('I just joined the Royaltē waitlist — they scan your Spotify and Apple Music data to find missing royalties. Launching in 90 days. You should check if your royaltē is being collected. 👇');
+    const shareText = encodeURIComponent('I just joined the Royaltē waitlist — they scan your Spotify and Apple Music data to find missing royalties. Launching June 1st. You should check if your royaltē is being collected. 👇');
     const shareUrl = encodeURIComponent('https://royalte.ai');
     document.getElementById('share-x').href = `https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`;
   }
