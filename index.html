@@ -127,6 +127,20 @@
     mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 0%, transparent 100%);
   }
 
+  .hero-glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -55%);
+    width: 800px; height: 600px;
+    background: radial-gradient(ellipse at center, rgba(138,92,255,0.18) 0%, rgba(224,64,200,0.07) 35%, transparent 65%);
+    pointer-events: none;
+    animation: glowPulse 8s ease-in-out infinite alternate;
+  }
+  @keyframes glowPulse {
+    0% { opacity: 0.8; transform: translate(-50%, -55%) scale(1); }
+    100% { opacity: 1; transform: translate(-50%, -55%) scale(1.05); }
+  }
+
   .hero-scanning {
     font-family: var(--font-body);
     font-size: 11px;
@@ -150,12 +164,13 @@
 
   .hero-h1 {
     font-family: var(--font-display);
-    font-size: clamp(44px, 6.5vw, 80px);
+    font-size: clamp(48px, 7vw, 86px);
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: -0.02em;
     line-height: 0.93;
     max-width: 900px;
+    color: #ffffff;
     opacity: 0;
     animation: fadeUp 0.9s ease 0.35s forwards;
   }
@@ -163,6 +178,7 @@
     background: var(--accent-grad);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     background-clip: text; display: block;
+    font-size: 1.12em;
   }
 
   .hero-sub {
@@ -177,19 +193,65 @@
     animation: fadeUp 0.9s ease 0.5s forwards;
   }
 
+  .hero-ctas {
+    margin-top: 36px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.6s forwards;
+  }
+
+  .btn-hero-primary {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 14px 36px;
+    background: var(--accent-grad);
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-hero-primary:hover { opacity: 0.88; }
+  .btn-hero-primary:active { transform: scale(0.98); }
+
+  .btn-hero-secondary {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 14px 28px;
+    border: 1px solid rgba(138,92,255,0.3);
+    color: var(--body);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-hero-secondary:hover { border-color: rgba(138,92,255,0.6); color: var(--white); }
+
   .hero-countdown {
-    margin-top: 52px;
+    margin-top: 36px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     opacity: 0;
-    animation: fadeUp 0.9s ease 0.65s forwards;
+    animation: fadeUp 0.9s ease 0.7s forwards;
   }
 
   .countdown-label {
     font-family: var(--font-body);
-    font-size: 10px;
+    font-size: 9px;
     letter-spacing: 0.2em;
     color: var(--muted);
     text-transform: uppercase;
@@ -205,32 +267,32 @@
     background: var(--bg-card);
     border: 1px solid var(--border2);
     border-radius: 4px;
-    padding: 12px 18px;
+    padding: 10px 14px;
     text-align: center;
-    min-width: 72px;
+    min-width: 60px;
   }
   .countdown-num {
     font-family: var(--font-display);
-    font-size: 36px;
+    font-size: 30px;
     font-weight: 800;
     line-height: 1;
     color: var(--white);
   }
   .countdown-unit {
     font-family: var(--font-body);
-    font-size: 9px;
+    font-size: 8px;
     letter-spacing: 0.14em;
     color: var(--muted);
     text-transform: uppercase;
-    margin-top: 4px;
+    margin-top: 3px;
   }
   .countdown-sep {
     font-family: var(--font-display);
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 800;
     color: var(--accent);
-    margin-bottom: 8px;
-    opacity: 0.6;
+    margin-bottom: 6px;
+    opacity: 0.5;
   }
 
   @keyframes fadeUp {
@@ -267,42 +329,26 @@
   /* ── AUDIT PREVIEW ── */
   #tease { border-top: 1px solid var(--border); }
 
-  .tease-grid {
+  .audit-card {
     margin-top: 52px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  @media (max-width: 700px) { .tease-grid { grid-template-columns: 1fr; } }
-
-  .tease-card {
     background: var(--bg-card);
     border: 1px solid var(--border2);
-    border-radius: 6px;
-    padding: 24px;
-    position: relative;
+    border-radius: 8px;
     overflow: hidden;
   }
-  .tease-card.locked .card-content { filter: blur(3px); user-select: none; pointer-events: none; }
 
-  .lock-overlay {
-    position: absolute; inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: rgba(3,3,10,0.75);
-    border-radius: 6px;
-    gap: 8px;
-    z-index: 2;
+  .audit-top-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
-  .lock-icon { font-size: 20px; color: var(--accent); }
-  .lock-text {
-    font-family: var(--font-body);
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    color: var(--muted);
-    text-transform: uppercase;
+
+  .audit-score-side {
+    padding: 28px;
+    border-right: 1px solid var(--border);
+  }
+
+  .audit-modules-side {
+    padding: 28px;
   }
 
   .card-label {
@@ -311,14 +357,14 @@
     letter-spacing: 0.14em;
     color: var(--muted);
     text-transform: uppercase;
-    margin-bottom: 14px;
+    margin-bottom: 18px;
   }
 
   .risk-score-block {
     display: flex;
     align-items: center;
     gap: 16px;
-    margin-bottom: 16px;
+    margin-bottom: 24px;
   }
   .score-num {
     background: var(--accent-grad);
@@ -348,7 +394,7 @@
     text-transform: uppercase;
   }
 
-  .mini-statuses { display: flex; flex-direction: column; gap: 8px; }
+  .mini-statuses { display: flex; flex-direction: column; gap: 0; }
   .mini-row {
     display: flex;
     justify-content: space-between;
@@ -356,17 +402,17 @@
     font-family: var(--font-body);
     font-size: 12px;
     color: var(--body);
-    padding: 8px 0;
+    padding: 10px 0;
     border-bottom: 1px solid var(--border);
   }
   .mini-row:last-child { border-bottom: none; }
 
   .status-badge {
     font-family: var(--font-body);
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 500;
     letter-spacing: 0.1em;
-    padding: 5px 12px;
+    padding: 4px 10px;
     border-radius: 3px;
     text-transform: uppercase;
   }
@@ -380,22 +426,36 @@
     justify-content: space-between;
     padding: 10px 14px;
     background: var(--bg-card2);
-    border-radius: 3px;
-    font-family: var(--font-body);
-    font-size: 11px;
-  }
-  .module-name { color: var(--body); letter-spacing: 0.04em; }
-  .module-status { color: var(--muted); font-size: 10px; }
-
-  .unlock-note {
-    margin-top: 40px;
+    border-radius: 4px;
     font-family: var(--font-body);
     font-size: 12px;
+  }
+  .module-name { color: var(--body); letter-spacing: 0.04em; }
+
+  .module-badge {
+    font-family: var(--font-body);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 3px;
+  }
+  .badge-issue { background: rgba(240,80,96,0.10); color: var(--red); border: 1px solid rgba(240,80,96,0.2); }
+  .badge-gaps { background: rgba(240,192,64,0.10); color: var(--amber); border: 1px solid rgba(240,192,64,0.2); }
+  .badge-partial { background: rgba(138,92,255,0.10); color: var(--accent); border: 1px solid var(--accent-border); }
+  .badge-clear { background: rgba(64,240,160,0.10); color: var(--green); border: 1px solid rgba(64,240,160,0.25); }
+
+  .audit-card-footer {
+    font-family: var(--font-body);
+    font-size: 11px;
+    letter-spacing: 0.1em;
     color: var(--muted);
     text-align: center;
-    letter-spacing: 0.08em;
+    padding: 16px 28px;
+    border-top: 1px solid var(--border);
+    text-transform: uppercase;
   }
-  .unlock-note span { color: var(--accent); }
 
   /* ── BUILT BY ARTISTS ── */
   .built-wrap {
@@ -710,11 +770,17 @@
   .reveal.visible { opacity: 1; transform: translateY(0); }
 
   /* ── RESPONSIVE ── */
+  @media (max-width: 700px) {
+    .audit-top-row { grid-template-columns: 1fr; }
+    .audit-score-side { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+
   @media (max-width: 600px) {
     nav { padding: 16px 20px; }
     .nav-logo { font-size: 22px; }
     .capture-inner { padding: 40px 24px; }
     .form-row { flex-direction: column; }
+    .hero-ctas { flex-direction: column; }
     footer { padding: 32px 20px; flex-direction: column; text-align: center; }
   }
 </style>
@@ -733,9 +799,10 @@
   <!-- HERO -->
   <div id="hero">
     <div class="hero-bg-grid"></div>
+    <div class="hero-glow"></div>
     <div class="hero-scanning">
       <div class="scanning-dot"></div>
-      // spotify + apple music beta
+      // 200 spots · free during beta
     </div>
     <h1 class="hero-h1">
       You can't collect<br/>what you<br/><span class="accent">can't see.</span>
@@ -743,6 +810,10 @@
     <p class="hero-sub">
       Every stream, sync, and performance generates royalties. Most artists never collect all of them. Royaltē scans your catalog, identifies exactly where money is slipping away, and tells you how to fix it.
     </p>
+    <div class="hero-ctas">
+      <a href="#capture" class="btn-hero-primary">Get Early Access</a>
+      <a href="#tease" class="btn-hero-secondary">See the Audit →</a>
+    </div>
     <div class="hero-countdown">
       <div class="countdown-label">// launching in</div>
       <div class="countdown-timer">
@@ -774,9 +845,9 @@
     <div class="section-comment reveal">// what royaltē finds</div>
     <h2 class="section-h2 reveal">Your full<br/><span class="accent">audit preview.</span></h2>
 
-    <div class="tease-grid reveal">
-      <div class="tease-card">
-        <div class="card-content">
+    <div class="audit-card reveal">
+      <div class="audit-top-row">
+        <div class="audit-score-side">
           <div class="card-label">// royalty risk score</div>
           <div class="risk-score-block">
             <div class="score-num">55</div>
@@ -788,41 +859,31 @@
           <div class="mini-statuses">
             <div class="mini-row">
               <span>Spotify</span>
-              <span class="status-badge registered" style="font-size:9px;padding:3px 8px;">Registered</span>
+              <span class="status-badge registered">Registered</span>
             </div>
             <div class="mini-row">
               <span>Apple Music</span>
-              <span class="status-badge not-confirmed" style="font-size:9px;padding:3px 8px;">Not Confirmed</span>
+              <span class="status-badge not-confirmed">Not Confirmed</span>
             </div>
             <div class="mini-row">
               <span>SoundExchange</span>
-              <span class="status-badge not-confirmed" style="font-size:9px;padding:3px 8px;">Not Confirmed</span>
+              <span class="status-badge not-confirmed">Not Confirmed</span>
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="tease-card locked">
-        <div class="lock-overlay">
-          <div class="lock-icon">🔒</div>
-          <div class="lock-text">// unlocks at launch</div>
-        </div>
-        <div class="card-content">
+        <div class="audit-modules-side">
           <div class="card-label">// 6 audit modules</div>
           <div class="module-list">
-            <div class="module-item"><span class="module-name">Metadata Integrity</span><span class="module-status">1 issue</span></div>
-            <div class="module-item"><span class="module-name">Platform Coverage</span><span class="module-status">2 gaps</span></div>
-            <div class="module-item"><span class="module-name">Publishing Risk</span><span class="module-status">partial</span></div>
-            <div class="module-item"><span class="module-name">Duplicate Detection</span><span class="module-status">clear</span></div>
-            <div class="module-item"><span class="module-name">YouTube / UGC</span><span class="module-status">unconfirmed</span></div>
-            <div class="module-item"><span class="module-name">Sync Readiness</span><span class="module-status">3 gaps</span></div>
+            <div class="module-item"><span class="module-name">Metadata Integrity</span><span class="module-badge badge-issue">1 issue</span></div>
+            <div class="module-item"><span class="module-name">Platform Coverage</span><span class="module-badge badge-gaps">2 gaps</span></div>
+            <div class="module-item"><span class="module-name">Publishing Risk</span><span class="module-badge badge-partial">partial</span></div>
+            <div class="module-item"><span class="module-name">Duplicate Detection</span><span class="module-badge badge-clear">clear</span></div>
+            <div class="module-item"><span class="module-name">YouTube / UGC</span><span class="module-badge badge-gaps">unconfirmed</span></div>
+            <div class="module-item"><span class="module-name">Sync Readiness</span><span class="module-badge badge-issue">3 gaps</span></div>
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="unlock-note reveal">
-      // full audit · 200 spots · free during beta · <span>get early access below</span>
+      <div class="audit-card-footer">// full report unlocks at launch</div>
     </div>
   </section>
 
