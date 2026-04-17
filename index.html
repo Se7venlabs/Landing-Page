@@ -857,48 +857,6 @@
   .share-btn:hover { border-color: var(--accent); color: var(--accent); }
   .share-btn.x { border-color: var(--accent-border); color: var(--accent); }
 
-  /* ── ROADMAP ── */
-  #roadmap { border-top: 1px solid var(--border); }
-
-  .roadmap-items {
-    margin-top: 48px;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    max-width: 560px;
-  }
-
-  .roadmap-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 0;
-    border-bottom: 1px solid var(--border);
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-  }
-  .roadmap-item.visible { opacity: 1; transform: translateY(0); }
-  .roadmap-item:last-child { border-bottom: none; }
-
-  .roadmap-name {
-    font-family: var(--font-body);
-    font-size: 13px;
-    color: var(--body);
-    letter-spacing: 0.04em;
-  }
-
-  .roadmap-tag {
-    font-family: var(--font-body);
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 4px 12px;
-    border-radius: 2px;
-  }
-  .roadmap-tag.live { background: rgba(30,215,96,0.12); color: #40f0a0; border: 1px solid rgba(30,215,96,0.25); }
-  .roadmap-tag.soon { background: rgba(138,92,255,0.07); color: var(--accent); border: 1px solid var(--accent-border); }
-
   /* ── FOOTER ── */
   footer {
     border-top: 1px solid var(--border);
@@ -1117,21 +1075,6 @@
     </div>
   </section>
 
-  <!-- ROADMAP -->
-  <section id="roadmap">
-    <div class="section-comment reveal">// the roadmap</div>
-    <h2 class="section-h2 reveal">Every platform.<br/><span class="accent">Every Royalté.</span></h2>
-    <div class="roadmap-items">
-      <div class="roadmap-item" id="r1"><span class="roadmap-name">Spotify data scanning</span><span class="roadmap-tag live">Live now</span></div>
-      <div class="roadmap-item" id="r2"><span class="roadmap-name">Apple Music cross-reference</span><span class="roadmap-tag live">Live now</span></div>
-      <div class="roadmap-item" id="r3"><span class="roadmap-name">YouTube / UGC detection</span><span class="roadmap-tag live">Live now</span></div>
-      <div class="roadmap-item" id="r4"><span class="roadmap-name">Publishing & performance tracking</span><span class="roadmap-tag soon">Soon</span></div>
-      <div class="roadmap-item" id="r5"><span class="roadmap-name">Territory & PRO registration audit</span><span class="roadmap-tag soon">Soon</span></div>
-      <div class="roadmap-item" id="r6"><span class="roadmap-name">Sync opportunity detection</span><span class="roadmap-tag soon">Soon</span></div>
-      <div class="roadmap-item" id="r7"><span class="roadmap-name">Ongoing catalog monitoring</span><span class="roadmap-tag soon">Soon</span></div>
-    </div>
-  </section>
-
   <!-- BUILT BY ARTISTS -->
   <div class="built-wrap reveal">
     <div class="built-inner">
@@ -1197,15 +1140,12 @@
 </div><!-- /main -->
 
 <script>
-  /* ── SUPABASE CONFIG ──
-     Replace these with your actual Supabase project URL and anon key
-     Dashboard → Settings → API
-  */
+  /* ── SUPABASE CONFIG ── */
   const SUPABASE_URL = 'https://vrfqbbkbmruxpfszdepg.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZyZnFiYmtibXJ1eHBmc3pkZXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMDY4MzksImV4cCI6MjA5MTc4MjgzOX0.8CPDVzo5zoNcraiZH4PxkmnMqZGlCy5hde_xEyTkyt4';
   const TABLE_NAME = 'waitlist';
 
-  /* ── LAUNCH DATE ── Set your actual launch date here */
+  /* ── LAUNCH DATE ── */
   const LAUNCH_DATE = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
 
   /* ── ENTRY SEQUENCE ── */
@@ -1222,15 +1162,12 @@
     return typingCtx;
   }
 
-  /* digital blip on each character — pitch rises with each line */
   function playKeyClick(variant) {
     try {
       const ctx = getAudioCtx();
       const t = ctx.currentTime;
 
       if (variant === 'launch') {
-        /* FINAL LAUNCH SOUND — power surge + rising tone */
-        /* Low rumble */
         const rumbleBuf = ctx.createBuffer(1, ctx.sampleRate * 0.6, ctx.sampleRate);
         const rumbleData = rumbleBuf.getChannelData(0);
         for (let j = 0; j < rumbleData.length; j++) {
@@ -1248,7 +1185,6 @@
         rumbleSrc.connect(rumbleFilter); rumbleFilter.connect(rumbleGain); rumbleGain.connect(ctx.destination);
         rumbleSrc.start(t);
 
-        /* Rising sweep tone */
         const osc = ctx.createOscillator();
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(120, t);
@@ -1264,7 +1200,6 @@
         osc.connect(sweepFilter); sweepFilter.connect(sweepGain); sweepGain.connect(ctx.destination);
         osc.start(t); osc.stop(t + 0.52);
 
-        /* High ping at peak */
         const ping = ctx.createOscillator();
         ping.type = 'sine';
         ping.frequency.setValueAtTime(2200, t + 0.45);
@@ -1279,7 +1214,6 @@
       }
 
       if (variant === 'ok') {
-        /* Short confirmation blip — clean sine tone */
         const baseFreq = 660 + lineIndex * 80;
         const osc = ctx.createOscillator();
         osc.type = 'sine';
@@ -1293,7 +1227,6 @@
         return;
       }
 
-      /* Regular character — digital blip, pitch climbs with line number */
       const baseFreq = 900 + lineIndex * 120 + Math.random() * 200;
       const osc = ctx.createOscillator();
       osc.type = 'square';
@@ -1335,7 +1268,6 @@
         i++;
       } else {
         clearInterval(iv);
-        // append status badge
         if (lineData.ok) {
           const s = document.createElement('span');
           s.className = 'ok'; s.textContent = lineData.ok;
@@ -1363,12 +1295,10 @@
     const hookScreen = document.getElementById('screen-hook');
     const container  = document.getElementById('boot-terminal');
 
-    // Play sci-fi boot sound
     const scifiAudio = document.getElementById('scifi-audio');
     scifiAudio.volume = 0.7;
     scifiAudio.play().catch(() => {});
 
-    // Flash transition
     hookScreen.classList.add('hidden');
     setTimeout(() => {
       bootScreen.classList.add('active');
@@ -1377,12 +1307,10 @@
 
     function runLines(idx) {
       if (idx >= bootLines.length) {
-        // Add blinking cursor on last line then launch
         const cursor = document.createElement('span');
         cursor.className = 'boot-cursor';
         container.appendChild(cursor);
         setTimeout(() => {
-          // Fade out sci-fi sound
           const scifi = document.getElementById('scifi-audio');
           let sv = scifi.volume;
           const siv = setInterval(() => {
@@ -1396,7 +1324,6 @@
           window.scrollTo(0, 0);
           initScrollReveal();
 
-          // Start music as page reveals — unmute first
           setTimeout(() => {
             audio.muted = false;
             audio.volume = 0;
@@ -1414,7 +1341,6 @@
     }
   }
 
-  /* show button after headline fades in */
   setTimeout(() => {
     document.getElementById('hook-btn').classList.add('visible');
   }, 2200);
@@ -1483,7 +1409,6 @@
   function initScrollReveal() {
     const reveals = document.querySelectorAll('.reveal');
     const chips = ['chip1','chip2','chip3','chip4'];
-    const roadmap = ['r1','r2','r3','r4','r5','r6','r7'];
 
     const obs = new IntersectionObserver((entries) => {
       entries.forEach(e => {
@@ -1509,23 +1434,6 @@
     }, { threshold: 0.2 });
     const firstChip = document.getElementById('chip1');
     if (firstChip) chipObs.observe(firstChip);
-
-    // Staggered roadmap
-    const roadObs = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          roadmap.forEach((id, i) => {
-            setTimeout(() => {
-              const el = document.getElementById(id);
-              if (el) el.classList.add('visible');
-            }, i * 100);
-          });
-          roadObs.disconnect();
-        }
-      });
-    }, { threshold: 0.1 });
-    const firstRoad = document.getElementById('r1');
-    if (firstRoad) roadObs.observe(firstRoad);
   }
 
   /* ── FORM SUBMIT ── */
@@ -1544,10 +1452,6 @@
     btn.textContent = '// submitting...';
 
     try {
-      console.log('Submitting to:', SUPABASE_URL);
-      console.log('Table:', TABLE_NAME);
-      console.log('Payload:', { name, email });
-
       const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE_NAME}`, {
         method: 'POST',
         headers: {
@@ -1559,16 +1463,13 @@
         body: JSON.stringify({ name, email, created_at: new Date().toISOString() })
       });
 
-      console.log('Response status:', res.status);
       const responseText = await res.text();
-      console.log('Response body:', responseText);
 
       if (res.ok || res.status === 201) {
         showSuccess(name, email);
       } else {
         let data = {};
         try { data = JSON.parse(responseText); } catch(e) {}
-        console.log('Error data:', data);
         if (data.code === '23505') {
           showSuccess(name, email);
         } else {
@@ -1579,7 +1480,6 @@
         }
       }
     } catch (err) {
-      console.log('Fetch error:', err);
       btn.disabled = false;
       btn.textContent = '// Join the Waitlist →';
       errEl.textContent = '// connection error — please try again';
