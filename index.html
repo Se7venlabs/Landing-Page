@@ -132,6 +132,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .sr-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .sr-name{font-family:var(--font-display);font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:.02em}
 .sr-meta{font-family:var(--font-body);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.sr-resolved{font-family:var(--font-body);font-size:10px;color:var(--accent);letter-spacing:.04em;margin-top:4px;display:none}
+.sr-resolved.vis{display:block}
 .sr-badge{font-family:var(--font-display);font-size:13px;font-weight:800;letter-spacing:.1em;
   text-transform:uppercase;padding:5px 14px;border-radius:3px;flex-shrink:0}
 .sr-badge.high{background:rgba(240,80,96,0.12);color:var(--red);border:1px solid rgba(240,80,96,0.25)}
@@ -314,6 +316,7 @@ footer{border-top:1px solid var(--border);padding:28px 36px;display:flex;align-i
         <div>
           <div class="sr-name" id="sr-artist">—</div>
           <div class="sr-meta"><span id="sr-tracks">—</span> tracks analyzed · <span id="sr-platforms">Spotify</span></div>
+          <div class="sr-resolved" id="sr-resolved"></div>
         </div>
         <div class="sr-badge high" id="sr-badge">HIGH</div>
       </div>
@@ -409,10 +412,38 @@ const IM={
 
 function validUrl(u){return/spotify\.com\//.test(u)||/music\.apple\.com\//.test(u)}
 
+function getUrlType(u){
+  if(/\/track[\/s]/.test(u))return'track';
+  if(/\/album[\/s]/.test(u))return'album';
+  if(/\/artist[\/s]/.test(u))return'artist';
+  if(/music\.apple\.com\//.test(u)){
+    if(/\/album\//.test(u)&&/i=\d/.test(u))return'track';
+    if(/\/album\//.test(u))return'album';
+    if(/\/artist\//.test(u))return'artist';
+  }
+  return'unknown';
+}
+
 /* Demo */
 function runDemo(){
   document.getElementById('scan-url').value='https://open.spotify.com/artist/3TVXtAsR1Inumwj472S9r4';
   runScan();
+}
+
+/* Fetch with retry */
+async function fetchWithRetry(url,retries=1){
+  for(let i=0;i<=retries;i++){
+    try{
+      const r=await fetch(url);
+      const data=await r.json();
+      if(r.ok&&!data.error)return{ok:true,data};
+      if(i<retries){await new Promise(w=>setTimeout(w,1500));continue}
+      return{ok:false,data};
+    }catch(e){
+      if(i<retries){await new Promise(w=>setTimeout(w,1500));continue}
+      return{ok:false,data:null,err:e};
+    }
+  }
 }
 
 /* Scan */
@@ -423,6 +454,7 @@ async function runScan(){
   const ld=document.getElementById('scan-load');
   const res=document.getElementById('scan-res');
   err.classList.remove('vis');res.classList.remove('vis');
+  document.getElementById('sr-resolved').classList.remove('vis');
 
   if(!url){
     err.textContent='// paste a Spotify or Apple Music link to scan';
@@ -433,31 +465,41 @@ async function runScan(){
     err.classList.add('vis');return;
   }
 
+  const urlType=getUrlType(url);
+
   btn.disabled=true;btn.textContent='Scanning...';ld.classList.add('vis');
 
-  try{
-    const r=await fetch(API+'?url='+encodeURIComponent(url));
-    const data=await r.json();
-    ld.classList.remove('vis');
+  const apiUrl=API+'?url='+encodeURIComponent(url)+'&type='+urlType;
+  const result=await fetchWithRetry(apiUrl,1);
 
-    if(!r.ok||data.error){
-      err.textContent='// '+(data.error||'that link could not be read — paste an artist, song, or album link and try again');
-      err.classList.add('vis');btn.disabled=false;btn.textContent='Scan My Music';return;
-    }
-    render(data,url);
-  }catch(e){
-    ld.classList.remove('vis');
-    err.textContent='// connection error — please try again';
+  ld.classList.remove('vis');
+
+  if(!result.ok){
+    const msg=result.data?.error||'that link could not be read — paste an artist, song, or album link and try again';
+    err.textContent='// '+msg;
     err.classList.add('vis');
+    btn.disabled=false;btn.textContent='Scan My Music';
+    return;
   }
+
+  render(result.data,url,urlType);
   btn.disabled=false;btn.textContent='Scan My Music';
 }
 
-function render(data,url){
+function render(data,url,urlType){
   const artist=data.artist_name||data.artistName||'Unknown Artist';
   const tracks=data.track_count||data.trackCount||data.tracks?.length||'—';
   const score=data.risk_score||data.riskScore||data.royaltyRiskScore||50;
   let level='MEDIUM';if(score>=65)level='HIGH';else if(score<=35)level='LOW';
+
+  /* Show resolved microcopy if track or album was converted */
+  const resolvedEl=document.getElementById('sr-resolved');
+  if(urlType==='track'||urlType==='album'){
+    resolvedEl.textContent='Detected '+urlType+' — matched to artist automatically';
+    resolvedEl.classList.add('vis');
+  }else{
+    resolvedEl.classList.remove('vis');
+  }
 
   let total=0;const det=[];
   const m=data.modules||data.auditModules||{};
