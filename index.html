@@ -3,1565 +3,525 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Royaltē — Music Audit Intelligence</title>
-<meta name="description" content="Royaltē scans your catalog, identifies where royalty money is slipping away, and tells you how to fix it. Free during beta." />
+<title>Royaltē — Are You Losing Royalties?</title>
+<meta name="description" content="Your music could be leaking money right now. Run a free scan and find out in seconds." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 <style>
-  :root {
-    --bg: #03030a;
-    --bg-card: #0c0c1a;
-    --bg-card2: #111126;
-    --accent: #8a5cff;
-    --accent-border: rgba(138,92,255,0.25);
-    --accent-grad: linear-gradient(135deg, #8a5cff, #e040c8);
-    --white: #e8e4f4;
-    --body: #9490b8;
-    --muted: #5a5880;
-    --border: rgba(138,100,255,0.1);
-    --border2: rgba(138,100,255,0.25);
-    --green: #40f0a0;
-    --amber: #f0c040;
-    --red: #f05060;
-    --font-display: 'Rajdhani', sans-serif;
-    --font-mono: 'Space Mono', monospace;
-    --font-body: 'Space Grotesk', sans-serif;
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--bg);
-    color: var(--white);
-    font-family: var(--font-body);
-    overflow-x: hidden;
-    line-height: 1.6;
-  }
-
-  /* Grid overlay */
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: linear-gradient(rgba(138,92,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(138,92,255,0.025) 1px, transparent 1px);
-    background-size: 56px 56px;
-    pointer-events: none; z-index: 0;
-  }
-
-  /* Noise texture */
-  body::after {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 9999;
-  }
-
-  /* ── NAVBAR ── */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 48px;
-    background: rgba(3,3,10,0.85);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border2);
-  }
-
-  .nav-logo {
-    font-family: var(--font-display);
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-  .nav-logo span {
-    background: var(--accent-grad);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .nav-sub {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    font-weight: 400;
-    letter-spacing: 0.2em;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-top: 2px;
-  }
-
-  .nav-countdown {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0.06em;
-    color: var(--accent);
-    border: 1px solid var(--accent-border);
-    padding: 6px 14px;
-    border-radius: 2px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .nav-countdown .cd-label {
-    color: var(--muted);
-    font-size: 9px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-  .nav-countdown .cd-time {
-    color: var(--accent);
-    font-weight: 700;
-  }
-
-  /* ── HERO ── */
-  #hero {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 120px 24px 48px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hero-bg-grid {
-    position: absolute; inset: 0;
-    background-image:
-      linear-gradient(rgba(138,92,255,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(138,92,255,0.025) 1px, transparent 1px);
-    background-size: 60px 60px;
-    mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 0%, transparent 100%);
-  }
-
-  .hero-glow {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -55%);
-    width: 800px; height: 600px;
-    background: radial-gradient(ellipse at center, rgba(138,92,255,0.18) 0%, rgba(224,64,200,0.07) 35%, transparent 65%);
-    pointer-events: none;
-    animation: glowPulse 8s ease-in-out infinite alternate;
-  }
-  @keyframes glowPulse {
-    0% { opacity: 0.8; transform: translate(-50%, -55%) scale(1); }
-    100% { opacity: 1; transform: translate(-50%, -55%) scale(1.05); }
-  }
-
-  .hero-scanning {
-    font-family: var(--font-body);
-    font-size: 11px;
-    letter-spacing: 0.16em;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 32px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    opacity: 0;
-    animation: fadeUp 0.8s ease 0.2s forwards;
-  }
-  .scanning-dot {
-    width: 6px; height: 6px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: pulse 2s ease infinite;
-  }
-  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
-
-  .hero-h1 {
-    font-family: var(--font-display);
-    font-size: clamp(48px, 7vw, 86px);
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
-    line-height: 0.93;
-    max-width: 900px;
-    color: #ffffff;
-    opacity: 0;
-    animation: fadeUp 0.9s ease 0.35s forwards;
-  }
-  .hero-h1 .accent {
-    background: var(--accent-grad);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text; display: block;
-    font-size: 1.12em;
-  }
-
-  .hero-sub {
-    font-family: var(--font-body);
-    font-size: 16px;
-    color: var(--body);
-    font-weight: 400;
-    line-height: 1.7;
-    max-width: 480px;
-    margin-top: 28px;
-    opacity: 0;
-    animation: fadeUp 0.9s ease 0.5s forwards;
-  }
-
-  .hero-ctas {
-    margin-top: 36px;
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: center;
-    opacity: 0;
-    animation: fadeUp 0.9s ease 0.6s forwards;
-  }
-
-  .btn-hero-primary {
-    font-family: var(--font-body);
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 14px 36px;
-    background: var(--accent-grad);
-    color: #fff;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.1s;
-    text-decoration: none;
-    display: inline-block;
-  }
-  .btn-hero-primary:hover { opacity: 0.88; }
-  .btn-hero-primary:active { transform: scale(0.98); }
-
-  .btn-hero-secondary {
-    font-family: var(--font-body);
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 14px 28px;
-    border: 1px solid rgba(138,92,255,0.3);
-    color: var(--body);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-decoration: none;
-    display: inline-block;
-  }
-  .btn-hero-secondary:hover { border-color: rgba(138,92,255,0.6); color: var(--white); }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* ── SECTIONS ── */
-  section { padding: 72px 24px; max-width: 1100px; margin: 0 auto; }
-
-  .section-comment {
-    font-family: var(--font-body);
-    font-size: 11px;
-    letter-spacing: 0.16em;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 20px;
-  }
-
-  .section-h2 {
-    font-family: var(--font-display);
-    font-size: clamp(40px, 5vw, 72px);
-    font-weight: 700;
-    text-transform: uppercase;
-    line-height: 0.95;
-    letter-spacing: -0.02em;
-  }
-  .section-h2 .accent {
-    background: var(--accent-grad);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* ── AUDIT PREVIEW ── */
-  #tease { border-top: 1px solid var(--border); text-align: center; }
-
-  .audit-card {
-    margin-top: 40px;
-    background: var(--bg-card);
-    border: 1px solid var(--border2);
-    border-radius: 8px;
-    overflow: hidden;
-    text-align: left;
-  }
-
-  .audit-top-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .audit-score-side {
-    padding: 28px;
-    border-right: 1px solid var(--border);
-  }
-
-  .audit-modules-side {
-    padding: 28px;
-  }
-
-  .card-label {
-    font-family: var(--font-body);
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 18px;
-  }
-
-  .risk-score-block {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  .score-num {
-    background: var(--accent-grad);
-    color: #fff;
-    font-family: var(--font-display);
-    font-size: 42px;
-    font-weight: 800;
-    width: 72px; height: 72px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-  }
-  .score-label-wrap .score-title {
-    font-family: var(--font-body);
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-  .score-label-wrap .score-level {
-    font-family: var(--font-display);
-    font-size: 20px;
-    font-weight: 800;
-    color: #f0c040;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .mini-statuses { display: flex; flex-direction: column; gap: 0; }
-  .mini-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-family: var(--font-body);
-    font-size: 12px;
-    color: var(--body);
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .mini-row:last-child { border-bottom: none; }
-
-  .status-badge {
-    font-family: var(--font-body);
-    font-size: 9px;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    padding: 4px 10px;
-    border-radius: 3px;
-    text-transform: uppercase;
-  }
-  .status-badge.registered { background: rgba(64,240,160,0.10); color: #40f0a0; border: 1px solid rgba(64,240,160,0.25); }
-  .status-badge.not-confirmed { background: rgba(240,192,64,0.10); color: #f0c040; border: 1px solid rgba(240,192,64,0.25); }
-
-  .module-list { display: flex; flex-direction: column; gap: 8px; }
-  .module-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 14px;
-    background: var(--bg-card2);
-    border-radius: 4px;
-    font-family: var(--font-body);
-    font-size: 12px;
-  }
-  .module-name { color: var(--body); letter-spacing: 0.04em; }
-
-  .module-badge {
-    font-family: var(--font-body);
-    font-size: 9px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 3px 10px;
-    border-radius: 3px;
-  }
-  .badge-issue { background: rgba(240,80,96,0.10); color: var(--red); border: 1px solid rgba(240,80,96,0.2); }
-  .badge-gaps { background: rgba(240,192,64,0.10); color: var(--amber); border: 1px solid rgba(240,192,64,0.2); }
-  .badge-partial { background: rgba(138,92,255,0.10); color: var(--accent); border: 1px solid var(--accent-border); }
-  .badge-clear { background: rgba(64,240,160,0.10); color: var(--green); border: 1px solid rgba(64,240,160,0.25); }
-
-  .audit-card-footer {
-    font-family: var(--font-body);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    text-align: center;
-    padding: 16px 28px;
-    border-top: 1px solid var(--border);
-    text-transform: uppercase;
-  }
-
-  /* ── BUILT BY ARTISTS ── */
-  .built-wrap {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 80px 40px 80px;
-    border-top: 1px solid var(--border);
-    text-align: center;
-  }
-
-  .built-inner {
-    max-width: 640px;
-    margin: 0 auto;
-  }
-
-  .built-h {
-    font-family: var(--font-display);
-    font-size: clamp(48px, 6vw, 86px);
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
-    line-height: 0.95;
-    margin-bottom: 24px;
-  }
-  .built-h span {
-    background: var(--accent-grad);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .built-sub {
-    font-size: 16px;
-    color: var(--body);
-    font-weight: 400;
-    line-height: 1.75;
-    max-width: 480px;
-    margin: 0 auto;
-  }
-
-  /* ── EMAIL CAPTURE ── */
-  #capture {
-    position: relative;
-    padding: 64px 24px 100px;
-    overflow: hidden;
-    border-top: 1px solid var(--border);
-  }
-
-  .capture-glow {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 700px; height: 700px;
-    background: radial-gradient(ellipse at center, rgba(138,92,255,0.12) 0%, rgba(224,64,200,0.04) 40%, transparent 70%);
-    pointer-events: none;
-    animation: captureGlow 6s ease-in-out infinite alternate;
-  }
-  @keyframes captureGlow {
-    0% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
-    100% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
-  }
-
-  .capture-inner {
-    position: relative;
-    max-width: 680px;
-    margin: 0 auto;
-    text-align: center;
-    border: 1px solid var(--accent-border);
-    border-radius: 12px;
-    padding: 64px 56px;
-    background: rgba(26,26,46,0.6);
-    backdrop-filter: blur(8px);
-    transition: border-color 0.6s ease, box-shadow 0.6s ease;
-  }
-  .capture-inner::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: 12px;
-    padding: 1px;
-    background: linear-gradient(135deg, rgba(138,92,255,0.3), transparent 40%, transparent 60%, rgba(224,64,200,0.3));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 0.6s ease;
-    pointer-events: none;
-  }
-  .capture-inner:hover::before {
-    opacity: 1;
-  }
-  .capture-inner:hover {
-    border-color: rgba(138,92,255,0.4);
-    box-shadow: 0 0 40px rgba(138,92,255,0.08);
-  }
-
-  .capture-comment {
-    font-family: var(--font-body);
-    font-size: 10px;
-    letter-spacing: 0.18em;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 24px;
-  }
-
-  .capture-h2 {
-    font-family: var(--font-display);
-    font-size: clamp(44px, 6vw, 80px);
-    font-weight: 800;
-    text-transform: uppercase;
-    line-height: 0.95;
-    letter-spacing: -0.01em;
-    margin-bottom: 20px;
-  }
-  .capture-h2 span {
-    background: var(--accent-grad);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .capture-sub {
-    font-family: var(--font-body);
-    font-size: 15px;
-    color: var(--body);
-    font-weight: 400;
-    line-height: 1.7;
-    max-width: 460px;
-    margin: 0 auto 24px;
-  }
-
-  .trust-line {
-    font-family: var(--font-body);
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 0.06em;
-    margin-bottom: 32px;
-    font-style: italic;
-  }
-
-  .capture-perks {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 40px;
-  }
-
-  .perk-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-family: var(--font-body);
-    font-size: 12px;
-    color: var(--body);
-    letter-spacing: 0.04em;
-  }
-  .perk-dot {
-    width: 5px; height: 5px;
-    background: var(--accent);
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .form-row {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    width: 100%;
-  }
-
-  .form-row-btn {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    margin-top: 12px;
-  }
-
-  .form-input {
-    flex: 1;
-    min-width: 0;
-    background: var(--bg-card);
-    border: 1px solid var(--border2);
-    border-radius: 4px;
-    padding: 14px 18px;
-    font-family: var(--font-body);
-    font-size: 14px;
-    color: var(--white);
-    outline: none;
-    transition: border-color 0.2s;
-    text-align: left;
-  }
-  .form-input::placeholder { color: var(--muted); }
-  .form-input:focus { border-color: var(--accent); }
-
-  .form-submit {
-    background: var(--accent-grad);
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 14px 40px;
-    font-family: var(--font-body);
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.1s;
-    white-space: nowrap;
-    width: 100%;
-  }
-  .form-submit:hover { opacity: 0.88; }
-  .form-submit:active { transform: scale(0.98); }
-  .form-submit:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .form-note {
-    font-family: var(--font-body);
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    margin-top: 14px;
-    text-align: center;
-  }
-
-  .form-error {
-    font-family: var(--font-body);
-    font-size: 11px;
-    color: #f05060;
-    letter-spacing: 0.08em;
-    display: none;
-  }
-  .form-error.visible { display: block; }
-
-  /* ── SUCCESS STATE ── */
-  #success-state {
-    display: none;
-    flex-direction: column;
-    gap: 16px;
-    padding: 36px;
-    background: rgba(138,92,255,0.05);
-    border: 1px solid var(--accent-border);
-    border-radius: 6px;
-    max-width: 560px;
-  }
-  #success-state.visible { display: flex; }
-
-  .success-check {
-    font-family: var(--font-body);
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    color: #40f0a0;
-    text-transform: uppercase;
-  }
-
-  .success-h {
-    font-family: var(--font-display);
-    font-size: 36px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: -0.01em;
-  }
-  .success-h span {
-    background: var(--accent-grad);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .success-body {
-    font-family: var(--font-body);
-    font-size: 12px;
-    color: var(--body);
-    line-height: 1.8;
-    letter-spacing: 0.04em;
-  }
-
-  .share-row {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 8px;
-    justify-content: center;
-    width: 100%;
-  }
-
-  .share-btn {
-    font-family: var(--font-body);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 10px 20px;
-    border-radius: 3px;
-    border: 1px solid var(--border);
-    background: none;
-    color: var(--body);
-    cursor: pointer;
-    transition: all 0.2s;
-    text-decoration: none;
-    display: inline-block;
-  }
-  .share-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .share-btn.x { border-color: var(--accent-border); color: var(--accent); }
-
-  /* ── FOOTER ── */
-  footer {
-    border-top: 1px solid var(--border);
-    padding: 40px 48px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .footer-logo {
-    font-family: var(--font-display);
-    font-size: 18px;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-  .footer-logo span {
-    background: var(--accent-grad);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .footer-meta {
-    font-family: var(--font-body);
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-
-  /* ── SCROLL REVEAL ── */
-  .reveal {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
-  }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
-
-  /* ── FREE SCAN ── */
-  #free-scan {
-    border-top: 1px solid var(--border);
-    text-align: center;
-  }
-
-  .scan-input-wrap {
-    max-width: 600px;
-    margin: 40px auto 0;
-  }
-
-  .scan-input-row {
-    display: flex;
-    gap: 10px;
-  }
-
-  .scan-url-input {
-    flex: 1;
-    min-width: 0;
-    background: var(--bg-card);
-    border: 1px solid var(--border2);
-    border-radius: 4px;
-    padding: 14px 18px;
-    font-family: var(--font-body);
-    font-size: 14px;
-    color: var(--white);
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .scan-url-input::placeholder { color: var(--muted); }
-  .scan-url-input:focus { border-color: var(--accent); }
-
-  .scan-btn {
-    background: var(--accent-grad);
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 14px 28px;
-    font-family: var(--font-body);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.1s;
-    white-space: nowrap;
-  }
-  .scan-btn:hover { opacity: 0.88; }
-  .scan-btn:active { transform: scale(0.98); }
-  .scan-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .scan-note {
-    font-family: var(--font-body);
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    margin-top: 12px;
-  }
-
-  .scan-error {
-    font-family: var(--font-body);
-    font-size: 11px;
-    color: var(--red);
-    letter-spacing: 0.06em;
-    margin-top: 10px;
-    display: none;
-  }
-  .scan-error.visible { display: block; }
-
-  /* Scan Results */
-  .scan-results {
-    display: none;
-    max-width: 600px;
-    margin: 32px auto 0;
-    background: var(--bg-card);
-    border: 1px solid var(--border2);
-    border-radius: 8px;
-    overflow: hidden;
-    text-align: left;
-  }
-  .scan-results.visible { display: block; }
-
-  .scan-results-header {
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .scan-artist-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .scan-artist-name {
-    font-family: var(--font-display);
-    font-size: 22px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-  }
-
-  .scan-meta {
-    font-family: var(--font-body);
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-
-  .scan-risk-badge {
-    font-family: var(--font-display);
-    font-size: 14px;
-    font-weight: 800;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 6px 16px;
-    border-radius: 3px;
-  }
-  .scan-risk-badge.high { background: rgba(240,80,96,0.12); color: var(--red); border: 1px solid rgba(240,80,96,0.25); }
-  .scan-risk-badge.medium { background: rgba(240,192,64,0.12); color: var(--amber); border: 1px solid rgba(240,192,64,0.25); }
-  .scan-risk-badge.low { background: rgba(64,240,160,0.12); color: var(--green); border: 1px solid rgba(64,240,160,0.25); }
-
-  .scan-issue-count {
-    padding: 16px 24px;
-    border-bottom: 1px solid var(--border);
-    font-family: var(--font-display);
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--red);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .scan-issue-count .issue-dot {
-    width: 8px; height: 8px;
-    background: var(--red);
-    border-radius: 50%;
-    flex-shrink: 0;
-    animation: pulse 2s ease infinite;
-  }
-
-  .scan-issues-list {
-    padding: 16px 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .scan-issue-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-family: var(--font-body);
-    font-size: 13px;
-    color: var(--body);
-    letter-spacing: 0.02em;
-  }
-  .scan-issue-row .issue-icon {
-    width: 6px; height: 6px;
-    background: var(--amber);
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .scan-hidden-issues {
-    padding: 16px 24px;
-    border-bottom: 1px solid var(--border);
-    font-family: var(--font-body);
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 0.04em;
-    font-style: italic;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .scan-hidden-issues .lock-css {
-    width: 12px; height: 14px;
-    border: 1.5px solid var(--muted);
-    border-radius: 2px;
-    position: relative;
-    flex-shrink: 0;
-  }
-  .scan-hidden-issues .lock-css::before {
-    content: '';
-    position: absolute;
-    top: -7px; left: 50%;
-    transform: translateX(-50%);
-    width: 8px; height: 7px;
-    border: 1.5px solid var(--muted);
-    border-bottom: none;
-    border-radius: 4px 4px 0 0;
-  }
-
-  .scan-missing-line {
-    padding: 14px 24px;
-    border-bottom: 1px solid var(--border);
-    font-family: var(--font-body);
-    font-size: 12px;
-    color: var(--amber);
-    letter-spacing: 0.04em;
-  }
-
-  .scan-cta {
-    padding: 20px 24px;
-    text-align: center;
-  }
-
-  .scan-unlock-btn {
-    display: inline-block;
-    background: var(--accent-grad);
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 14px 40px;
-    font-family: var(--font-body);
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.1s;
-    text-decoration: none;
-  }
-  .scan-unlock-btn:hover { opacity: 0.88; }
-  .scan-unlock-btn:active { transform: scale(0.98); }
-
-  /* Scan loading state */
-  .scan-loading {
-    display: none;
-    max-width: 600px;
-    margin: 32px auto 0;
-    text-align: center;
-    padding: 40px 24px;
-    background: var(--bg-card);
-    border: 1px solid var(--border2);
-    border-radius: 8px;
-  }
-  .scan-loading.visible { display: block; }
-
-  .scan-loading-text {
-    font-family: var(--font-body);
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-
-  .scan-loading-bar {
-    width: 200px;
-    height: 3px;
-    background: var(--border);
-    border-radius: 2px;
-    margin: 16px auto 0;
-    overflow: hidden;
-  }
-  .scan-loading-bar::after {
-    content: '';
-    display: block;
-    width: 40%;
-    height: 100%;
-    background: var(--accent-grad);
-    border-radius: 2px;
-    animation: loadSlide 1.2s ease-in-out infinite;
-  }
-  @keyframes loadSlide {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(350%); }
-  }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 768px) {
-    .audit-top-row { grid-template-columns: 1fr; }
-    .audit-score-side { border-right: none; border-bottom: 1px solid var(--border); }
-  }
-
-  @media (max-width: 600px) {
-    /* Nav */
-    nav { padding: 12px 16px; gap: 8px; }
-    .nav-logo { font-size: 20px; }
-    .nav-sub { font-size: 7px; letter-spacing: 0.15em; }
-    .nav-countdown { padding: 5px 10px; gap: 6px; flex-shrink: 0; }
-    .nav-countdown .cd-label { display: none; }
-    .nav-countdown .cd-time { font-size: 10px; }
-
-    /* Hero */
-    #hero { padding: 100px 20px 40px; }
-    .hero-scanning { font-size: 9px; margin-bottom: 24px; }
-    .hero-h1 { font-size: clamp(36px, 10vw, 52px); }
-    .hero-sub { font-size: 14px; margin-top: 20px; }
-    .hero-ctas { flex-direction: column; margin-top: 28px; width: 100%; }
-    .btn-hero-primary, .btn-hero-secondary { width: 100%; text-align: center; }
-    .hero-glow { width: 400px; height: 300px; }
-
-    /* Sections */
-    section { padding: 56px 16px; }
-    .section-h2 { font-size: clamp(32px, 8vw, 48px); }
-    .section-comment { font-size: 10px; margin-bottom: 14px; }
-
-    /* Audit card */
-    .audit-card { margin-top: 28px; }
-    .audit-score-side, .audit-modules-side { padding: 20px; }
-    .score-num { width: 60px; height: 60px; font-size: 34px; }
-    .score-label-wrap .score-level { font-size: 17px; }
-    .module-item { padding: 8px 12px; font-size: 11px; }
-    .module-badge { font-size: 8px; padding: 2px 8px; }
-    .audit-card-footer { font-size: 10px; padding: 14px 16px; }
-
-    /* Built by artists */
-    .built-wrap { padding: 56px 20px; }
-    .built-h { font-size: clamp(36px, 9vw, 52px); }
-    .built-sub { font-size: 14px; }
-
-    /* CTA / Capture */
-    #capture { padding: 48px 16px 80px; }
-    .capture-inner { padding: 32px 20px; border-radius: 8px; }
-    .capture-h2 { font-size: clamp(32px, 8vw, 48px); }
-    .capture-sub { font-size: 13px; margin-bottom: 16px; }
-    .trust-line { font-size: 11px; margin-bottom: 24px; }
-    .capture-comment { font-size: 8px; letter-spacing: 0.14em; margin-bottom: 16px; }
-    .perk-row { font-size: 11px; }
-    .capture-perks { margin-bottom: 28px; }
-    .form-row { flex-direction: column; }
-    .form-input { padding: 12px 14px; font-size: 14px; }
-    .form-submit { padding: 14px 24px; font-size: 12px; }
-
-    /* Free Scan */
-    .scan-input-row { flex-direction: column; }
-    .scan-btn { width: 100%; }
-    .scan-results-header { flex-direction: column; gap: 12px; align-items: flex-start; }
-    .scan-artist-name { font-size: 18px; }
-    .scan-issue-count { font-size: 15px; }
-    .scan-issue-row { font-size: 12px; }
-    .scan-issues-list { padding: 14px 18px; }
-    .scan-hidden-issues { padding: 14px 18px; font-size: 11px; }
-    .scan-cta { padding: 16px 18px; }
-    .scan-unlock-btn { width: 100%; padding: 14px 24px; font-size: 12px; }
-
-    /* Success */
-    .success-h { font-size: 28px; }
-    .success-body { font-size: 11px; }
-    .share-row { flex-direction: column; }
-    .share-btn { width: 100%; text-align: center; }
-
-    /* Footer */
-    footer { padding: 28px 16px; flex-direction: column; text-align: center; gap: 12px; }
-    .footer-logo { font-size: 16px; }
-  }
-
-  @media (max-width: 380px) {
-    .hero-h1 { font-size: 32px; }
-    .section-h2 { font-size: 28px; }
-    .capture-h2 { font-size: 28px; }
-    .built-h { font-size: 32px; }
-    .score-num { width: 52px; height: 52px; font-size: 28px; }
-    .risk-score-block { gap: 12px; }
-  }
+:root{
+  --bg:#03030a;--bg-card:#0c0c1a;--bg-card2:#111126;
+  --accent:#8a5cff;--accent-border:rgba(138,92,255,0.25);
+  --accent-grad:linear-gradient(135deg,#8a5cff,#e040c8);
+  --white:#e8e4f4;--body:#9490b8;--muted:#5a5880;
+  --border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);
+  --green:#40f0a0;--amber:#f0c040;--red:#f05060;
+  --font-display:'Rajdhani',sans-serif;--font-mono:'Space Mono',monospace;--font-body:'Space Grotesk',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:var(--font-body);overflow-x:hidden;line-height:1.6}
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(138,92,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.03) 1px,transparent 1px);
+  background-size:56px 56px;pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9999}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;
+  padding:14px 36px;background:rgba(3,3,10,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border2)}
+.nav-logo{font-family:var(--font-display);font-size:22px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.nav-logo span{background:var(--accent-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-cd{font-family:var(--font-mono);font-size:10px;color:var(--accent);border:1px solid var(--accent-border);
+  padding:4px 10px;border-radius:2px;display:flex;align-items:center;gap:6px}
+.nav-cd .label{color:var(--muted);font-size:8px;letter-spacing:.1em;text-transform:uppercase}
+.nav-cd .time{font-weight:700}
+
+/* ── HERO ── */
+#hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:90px 24px 50px;position:relative;overflow:hidden}
+
+.glow-1{position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);
+  width:900px;height:700px;
+  background:radial-gradient(ellipse at center,rgba(138,92,255,0.22) 0%,rgba(224,64,200,0.08) 30%,transparent 58%);
+  pointer-events:none;animation:g1 7s ease-in-out infinite alternate}
+@keyframes g1{0%{opacity:.65;transform:translate(-50%,-50%) scale(1)}100%{opacity:1;transform:translate(-50%,-50%) scale(1.07)}}
+
+.glow-2{position:absolute;top:58%;left:50%;transform:translate(-50%,-50%);
+  width:500px;height:280px;
+  background:radial-gradient(ellipse at center,rgba(224,64,200,0.12) 0%,transparent 70%);
+  pointer-events:none;animation:g2 9s ease-in-out infinite alternate}
+@keyframes g2{0%{opacity:.4;transform:translate(-50%,-50%) scale(1)}100%{opacity:.85;transform:translate(-50%,-50%) scale(1.12)}}
+
+.hero-inner{position:relative;z-index:2;max-width:660px;width:100%}
+
+/* Headline */
+.hero-h1{font-family:var(--font-display);font-size:clamp(44px,9vw,92px);font-weight:800;
+  text-transform:uppercase;letter-spacing:-.035em;line-height:.88;color:#fff;
+  margin-bottom:18px;opacity:0;animation:fu .7s ease .05s forwards}
+.hero-h1 .gr{background:var(--accent-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* Subheadline */
+.hero-sub{font-family:var(--font-body);font-size:clamp(14px,1.8vw,17px);color:var(--body);font-weight:400;
+  line-height:1.55;max-width:480px;margin:0 auto 36px;opacity:0;animation:fu .7s ease .18s forwards}
+
+@keyframes fu{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── SCAN BOX ── */
+.scan-box{opacity:0;animation:fu .7s ease .32s forwards}
+
+.scan-row{display:flex;gap:10px;max-width:540px;margin:0 auto}
+.scan-input{flex:1;min-width:0;background:var(--bg-card);
+  border:2px solid var(--border2);border-radius:6px;
+  padding:17px 20px;font-family:var(--font-body);font-size:15px;color:var(--white);outline:none;
+  transition:border-color .3s,box-shadow .3s}
+.scan-input::placeholder{color:var(--muted)}
+.scan-input:focus{border-color:var(--accent);box-shadow:0 0 28px rgba(138,92,255,0.18)}
+
+.scan-go{background:var(--accent-grad);color:#fff;border:none;border-radius:6px;padding:17px 34px;
+  font-family:var(--font-body);font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;transition:opacity .2s,transform .1s,box-shadow .3s;white-space:nowrap;
+  box-shadow:0 0 0 rgba(138,92,255,0)}
+.scan-go:hover{opacity:.9;box-shadow:0 4px 28px rgba(138,92,255,0.25)}
+.scan-go:active{transform:scale(.97)}
+.scan-go:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+
+.scan-helper{font-family:var(--font-body);font-size:10px;color:var(--muted);letter-spacing:.06em;margin-top:10px}
+
+.scan-urgency{font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--accent);margin-top:14px;
+  display:flex;align-items:center;justify-content:center;gap:8px}
+.scan-urgency .dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:p 2s ease infinite}
+@keyframes p{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.65)}}
+
+.micro-trust{font-family:var(--font-body);font-size:10px;letter-spacing:.06em;color:var(--muted);margin-top:12px}
+.micro-trust b{color:var(--body);font-weight:500}
+
+.scan-demo{margin-top:12px}
+.demo-link{font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:1px dashed var(--muted);
+  padding:0 0 2px;transition:color .2s,border-color .2s}
+.demo-link:hover{color:var(--accent);border-color:var(--accent)}
+
+.scan-err{font-family:var(--font-body);font-size:11px;color:var(--red);letter-spacing:.04em;margin-top:10px;
+  display:none;text-align:center}
+.scan-err.vis{display:block}
+
+/* Brand line */
+.brand-line{font-family:var(--font-display);font-size:clamp(13px,1.6vw,16px);font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:28px;opacity:0;animation:fu .7s ease .5s forwards}
+
+/* ── LOADING ── */
+.scan-load{display:none;max-width:540px;margin:24px auto 0;text-align:center;padding:32px 24px;
+  background:var(--bg-card);border:1px solid var(--border2);border-radius:8px}
+.scan-load.vis{display:block}
+.scan-load-t{font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.scan-load-bar{width:160px;height:3px;background:var(--border);border-radius:2px;margin:12px auto 0;overflow:hidden}
+.scan-load-bar::after{content:'';display:block;width:40%;height:100%;background:var(--accent-grad);
+  border-radius:2px;animation:sl 1s ease-in-out infinite}
+@keyframes sl{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
+
+/* ── RESULTS ── */
+.scan-res{display:none;max-width:540px;margin:24px auto 0;background:var(--bg-card);
+  border:1px solid var(--border2);border-radius:8px;overflow:hidden;text-align:left}
+.scan-res.vis{display:block;animation:fu .45s ease forwards}
+
+.sr-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sr-name{font-family:var(--font-display);font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:.02em}
+.sr-meta{font-family:var(--font-body);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.sr-badge{font-family:var(--font-display);font-size:13px;font-weight:800;letter-spacing:.1em;
+  text-transform:uppercase;padding:5px 14px;border-radius:3px;flex-shrink:0}
+.sr-badge.high{background:rgba(240,80,96,0.12);color:var(--red);border:1px solid rgba(240,80,96,0.25)}
+.sr-badge.medium{background:rgba(240,192,64,0.12);color:var(--amber);border:1px solid rgba(240,192,64,0.25)}
+.sr-badge.low{background:rgba(64,240,160,0.12);color:var(--green);border:1px solid rgba(64,240,160,0.25)}
+
+.sr-count{padding:14px 22px;border-bottom:1px solid var(--border);font-family:var(--font-display);
+  font-size:17px;font-weight:700;color:var(--red);display:flex;align-items:center;gap:10px}
+.sr-count .rd{width:8px;height:8px;background:var(--red);border-radius:50%;flex-shrink:0;animation:p 2s ease infinite}
+
+.sr-list{padding:14px 22px;display:flex;flex-direction:column;gap:11px;border-bottom:1px solid var(--border)}
+.sr-issue{display:flex;align-items:center;gap:11px;font-family:var(--font-body);font-size:13px;color:var(--body);letter-spacing:.02em}
+.sr-issue .ic{width:6px;height:6px;background:var(--amber);border-radius:50%;flex-shrink:0}
+
+.sr-locked{padding:14px 22px;border-bottom:1px solid var(--border);font-family:var(--font-body);
+  font-size:11px;color:var(--muted);letter-spacing:.04em;font-style:italic;display:flex;align-items:center;gap:8px}
+.lk{width:11px;height:13px;border:1.5px solid var(--muted);border-radius:2px;position:relative;flex-shrink:0}
+.lk::before{content:'';position:absolute;top:-6px;left:50%;transform:translateX(-50%);
+  width:7px;height:6px;border:1.5px solid var(--muted);border-bottom:none;border-radius:3px 3px 0 0}
+
+.sr-warn{padding:12px 22px;border-bottom:1px solid var(--border);font-family:var(--font-body);
+  font-size:12px;color:var(--amber);letter-spacing:.04em}
+
+.sr-bridge{padding:14px 22px;border-bottom:1px solid var(--border);font-family:var(--font-body);
+  font-size:13px;color:var(--body);letter-spacing:.02em;line-height:1.5}
+
+.sr-cta{padding:18px 22px;text-align:center}
+.sr-cta-btn{display:inline-block;background:var(--accent-grad);color:#fff;border:none;border-radius:4px;
+  padding:14px 40px;font-family:var(--font-body);font-size:13px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;cursor:pointer;transition:opacity .2s,transform .1s;text-decoration:none}
+.sr-cta-btn:hover{opacity:.88}
+.sr-cta-btn:active{transform:scale(.98)}
+
+.sr-note{font-family:var(--font-body);font-size:10px;color:var(--muted);margin-top:6px;letter-spacing:.04em}
+
+/* ── CTA ── */
+#capture{position:relative;padding:56px 24px 72px;overflow:hidden}
+.cap-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:550px;height:550px;background:radial-gradient(ellipse at center,rgba(138,92,255,0.1) 0%,transparent 70%);
+  pointer-events:none;animation:cg 6s ease-in-out infinite alternate}
+@keyframes cg{0%{opacity:.5;transform:translate(-50%,-50%) scale(1)}100%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}}
+
+.cap-inner{position:relative;max-width:520px;margin:0 auto;text-align:center;
+  border:1px solid var(--accent-border);border-radius:10px;padding:44px 36px;
+  background:rgba(26,26,46,0.6);backdrop-filter:blur(8px);transition:border-color .6s,box-shadow .6s}
+.cap-inner::before{content:'';position:absolute;inset:-1px;border-radius:10px;padding:1px;
+  background:linear-gradient(135deg,rgba(138,92,255,0.3),transparent 40%,transparent 60%,rgba(224,64,200,0.3));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .6s;pointer-events:none}
+.cap-inner:hover::before{opacity:1}
+.cap-inner:hover{border-color:rgba(138,92,255,0.4);box-shadow:0 0 36px rgba(138,92,255,0.08)}
+
+.cap-h{font-family:var(--font-display);font-size:clamp(30px,5vw,48px);font-weight:800;
+  text-transform:uppercase;line-height:.95;letter-spacing:-.01em;margin-bottom:12px}
+.cap-h span{background:var(--accent-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.cap-sub{font-family:var(--font-body);font-size:13px;color:var(--body);line-height:1.6;max-width:400px;margin:0 auto 8px}
+.cap-built{font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;color:var(--muted);margin-bottom:24px}
+
+.f-row{display:flex;gap:10px;width:100%}
+.f-in{flex:1;min-width:0;background:var(--bg-card);border:1px solid var(--border2);border-radius:4px;
+  padding:13px 15px;font-family:var(--font-body);font-size:14px;color:var(--white);outline:none;transition:border-color .2s}
+.f-in::placeholder{color:var(--muted)}
+.f-in:focus{border-color:var(--accent)}
+.f-btn-row{width:100%;margin-top:10px}
+.f-submit{width:100%;background:var(--accent-grad);color:#fff;border:none;border-radius:4px;
+  padding:14px 24px;font-family:var(--font-body);font-size:12px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;cursor:pointer;transition:opacity .2s,transform .1s}
+.f-submit:hover{opacity:.88}
+.f-submit:active{transform:scale(.98)}
+.f-submit:disabled{opacity:.4;cursor:not-allowed}
+.f-note{font-family:var(--font-body);font-size:9px;letter-spacing:.06em;color:var(--muted);margin-top:10px}
+.f-err{font-family:var(--font-body);font-size:11px;color:var(--red);letter-spacing:.04em;display:none}
+.f-err.vis{display:block}
+
+/* Success */
+#suc{display:none;flex-direction:column;gap:12px;padding:28px;
+  background:rgba(138,92,255,0.05);border:1px solid var(--accent-border);border-radius:6px}
+#suc.vis{display:flex}
+.suc-chk{font-family:var(--font-body);font-size:11px;letter-spacing:.12em;color:var(--green);text-transform:uppercase}
+.suc-h{font-family:var(--font-display);font-size:28px;font-weight:800;text-transform:uppercase;letter-spacing:-.01em}
+.suc-h span{background:var(--accent-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.suc-body{font-family:var(--font-body);font-size:11px;color:var(--body);line-height:1.8;letter-spacing:.04em}
+.shr-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;justify-content:center}
+.shr-btn{font-family:var(--font-body);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:9px 18px;
+  border-radius:3px;border:1px solid var(--border);background:none;color:var(--body);cursor:pointer;
+  transition:all .2s;text-decoration:none;display:inline-block}
+.shr-btn:hover{border-color:var(--accent);color:var(--accent)}
+.shr-btn.x{border-color:var(--accent-border);color:var(--accent)}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border);padding:28px 36px;display:flex;align-items:center;
+  justify-content:space-between;flex-wrap:wrap;gap:10px}
+.ft-logo{font-family:var(--font-display);font-size:15px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.ft-logo span{background:var(--accent-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ft-meta{font-family:var(--font-body);font-size:9px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+
+/* ── REVEAL ── */
+.rev{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+.rev.vis{opacity:1;transform:translateY(0)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  nav{padding:10px 16px}
+  .nav-logo{font-size:18px}
+  .nav-cd .label{display:none}
+  .nav-cd .time{font-size:9px}
+  #hero{padding:80px 18px 36px}
+  .hero-h1{font-size:clamp(34px,12vw,50px)}
+  .hero-sub{font-size:14px;margin-bottom:28px}
+  .scan-row{flex-direction:column}
+  .scan-go{width:100%}
+  .scan-input{padding:15px 16px;font-size:14px}
+  .glow-1{width:380px;height:300px}
+  .glow-2{width:220px;height:140px}
+  .sr-head{flex-direction:column;gap:10px;align-items:flex-start}
+  .sr-name{font-size:18px}
+  .sr-count{font-size:15px}
+  .sr-issue{font-size:12px}
+  .sr-list,.sr-locked{padding:12px 16px}
+  .sr-cta-btn{width:100%;padding:14px 20px;font-size:11px}
+  #capture{padding:40px 16px 56px}
+  .cap-inner{padding:28px 18px}
+  .cap-h{font-size:clamp(26px,7vw,38px)}
+  .f-row{flex-direction:column}
+  .shr-row{flex-direction:column}
+  .shr-btn{width:100%;text-align:center}
+  footer{padding:20px 16px;flex-direction:column;text-align:center}
+}
+@media(max-width:380px){
+  .hero-h1{font-size:30px}
+  .cap-h{font-size:26px}
+}
 </style>
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav>
-    <div>
-      <div class="nav-logo">Royalt<span>ē</span></div>
-      <div class="nav-sub">Music Audit Intelligence</div>
-    </div>
-    <div class="nav-countdown">
-      <span class="cd-label">// launching in</span>
-      <span class="cd-time" id="nav-cd">--d --h --m --s</span>
-    </div>
-  </nav>
-
-  <!-- HERO -->
-  <div id="hero">
-    <div class="hero-bg-grid"></div>
-    <div class="hero-glow"></div>
-    <div class="hero-scanning">
-      <div class="scanning-dot"></div>
-      // 200 spots · free during beta
-    </div>
-    <h1 class="hero-h1">
-      You can't collect<br/>what you<br/><span class="accent">can't see.</span>
-    </h1>
-    <p class="hero-sub">
-      Every stream, sync, and performance generates royalties. Most artists never collect all of them. Royaltē scans your catalog, identifies exactly where money is slipping away, and tells you how to fix it.
-    </p>
-    <div class="hero-ctas">
-      <a href="#capture" class="btn-hero-primary">Get Early Access</a>
-      <a href="#free-scan" class="btn-hero-secondary">Run Free Scan →</a>
-    </div>
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Royalt<span>ē</span></div>
+  <div class="nav-cd">
+    <span class="label">// launching</span>
+    <span class="time" id="nav-cd">--d --h --m</span>
   </div>
+</nav>
 
-  <!-- FREE SCAN -->
-  <section id="free-scan">
-    <div class="section-comment reveal">// free scan</div>
-    <h2 class="section-h2 reveal">Paste your link.<br/><span class="accent">See your gaps.</span></h2>
+<!-- HERO = FREE SCAN -->
+<div id="hero">
+  <div class="glow-1"></div>
+  <div class="glow-2"></div>
+  <div class="hero-inner">
 
-    <div class="scan-input-wrap reveal">
-      <div class="scan-input-row">
-        <input class="scan-url-input" id="scan-url" type="url" placeholder="Paste your Spotify or Apple Music link" />
-        <button class="scan-btn" id="scan-btn" onclick="runFreeScan()">// Run Free Scan</button>
+    <h1 class="hero-h1">Your music is<br/><span class="gr">leaking money.</span></h1>
+    <p class="hero-sub">Run a free scan of your catalog and uncover what's missing in seconds.</p>
+
+    <div class="scan-box">
+      <div class="scan-row">
+        <input class="scan-input" id="scan-url" type="url" placeholder="Paste your Spotify or Apple Music link" />
+        <button class="scan-go" id="scan-btn" onclick="runScan()">Run Free Scan</button>
       </div>
-      <div class="scan-note">// Supports Spotify & Apple Music · artist, album, or track links</div>
-      <div class="scan-error" id="scan-error">// please enter a valid Spotify or Apple Music URL</div>
+      <div class="scan-helper">// artist, track, or album link</div>
+      <div class="scan-urgency"><div class="dot"></div>Only 200 artists get a full audit during beta</div>
+      <div class="micro-trust"><b>7</b> audit checks · <b>Verified</b> data only · <b>Free</b> during beta</div>
+      <div class="scan-demo"><button class="demo-link" onclick="runDemo()">Try demo — see sample results</button></div>
+      <div class="scan-err" id="scan-err"></div>
     </div>
 
-    <!-- Loading State -->
-    <div class="scan-loading" id="scan-loading">
-      <div class="scan-loading-text">Scanning your catalog...</div>
-      <div class="scan-loading-bar"></div>
+    <div class="brand-line">You can't collect what you can't see.</div>
+
+    <!-- Loading -->
+    <div class="scan-load" id="scan-load">
+      <div class="scan-load-t">Scanning your catalog...</div>
+      <div class="scan-load-bar"></div>
     </div>
 
-    <!-- Results (hidden until scan completes) -->
-    <div class="scan-results" id="scan-results">
-      <div class="scan-results-header">
-        <div class="scan-artist-info">
-          <div class="scan-artist-name" id="sr-artist">—</div>
-          <div class="scan-meta"><span id="sr-tracks">—</span> tracks analyzed · <span id="sr-platforms">Spotify</span></div>
+    <!-- Results -->
+    <div class="scan-res" id="scan-res">
+      <div class="sr-head">
+        <div>
+          <div class="sr-name" id="sr-artist">—</div>
+          <div class="sr-meta"><span id="sr-tracks">—</span> tracks analyzed · <span id="sr-platforms">Spotify</span></div>
         </div>
-        <div class="scan-risk-badge high" id="sr-risk-badge">HIGH</div>
+        <div class="sr-badge high" id="sr-badge">HIGH</div>
       </div>
-      <div class="scan-issue-count">
-        <div class="issue-dot"></div>
-        <span id="sr-issue-count">— Issues Detected</span>
-      </div>
-      <div class="scan-issues-list" id="sr-issues-list">
-      </div>
-      <div class="scan-hidden-issues">
-        <div class="lock-css"></div>
-        Additional issues detected — unlock full audit to view
-      </div>
-      <div class="scan-missing-line">⚠ You may be missing out on royalties</div>
-      <div class="scan-cta">
-        <a href="#capture" class="scan-unlock-btn">Unlock Full Audit →</a>
+      <div class="sr-count"><div class="rd"></div><span id="sr-count">— Issues Detected</span></div>
+      <div class="sr-list" id="sr-list"></div>
+      <div class="sr-locked"><div class="lk"></div>Additional issues detected — unlock full audit to view</div>
+      <div class="sr-warn">⚠ You may be missing out on royalties</div>
+      <div class="sr-bridge">Unlock your full audit to see exactly what's wrong and how to fix it.</div>
+      <div class="sr-cta">
+        <a href="#capture" class="sr-cta-btn">Unlock Full Audit →</a>
+        <div class="sr-note">// free during beta · delivered within 12–24h</div>
       </div>
     </div>
-  </section>
 
-  <!-- AUDIT PREVIEW -->
-  <section id="tease">
-    <div class="section-comment reveal">// what royaltē finds</div>
-    <h2 class="section-h2 reveal">Your full<br/><span class="accent">audit preview.</span></h2>
-
-    <div class="audit-card reveal">
-      <div class="audit-top-row">
-        <div class="audit-score-side">
-          <div class="card-label">// royalty risk score</div>
-          <div class="risk-score-block">
-            <div class="score-num">55</div>
-            <div class="score-label-wrap">
-              <div class="score-title">// risk level</div>
-              <div class="score-level">Moderate</div>
-            </div>
-          </div>
-          <div class="mini-statuses">
-            <div class="mini-row">
-              <span>Spotify</span>
-              <span class="status-badge registered">Registered</span>
-            </div>
-            <div class="mini-row">
-              <span>Apple Music</span>
-              <span class="status-badge not-confirmed">Not Confirmed</span>
-            </div>
-            <div class="mini-row">
-              <span>SoundExchange</span>
-              <span class="status-badge not-confirmed">Not Confirmed</span>
-            </div>
-          </div>
-        </div>
-        <div class="audit-modules-side">
-          <div class="card-label">// 7 audit modules</div>
-          <div class="module-list">
-            <div class="module-item"><span class="module-name">Metadata Integrity</span><span class="module-badge badge-issue">1 issue</span></div>
-            <div class="module-item"><span class="module-name">Platform Coverage</span><span class="module-badge badge-gaps">2 gaps</span></div>
-            <div class="module-item"><span class="module-name">Publishing Risk</span><span class="module-badge badge-partial">partial</span></div>
-            <div class="module-item"><span class="module-name">Duplicate Detection</span><span class="module-badge badge-clear">clear</span></div>
-            <div class="module-item"><span class="module-name">YouTube / UGC</span><span class="module-badge badge-gaps">unconfirmed</span></div>
-            <div class="module-item"><span class="module-name">Sync Readiness</span><span class="module-badge badge-issue">3 gaps</span></div>
-            <div class="module-item"><span class="module-name">Territory Coverage</span><span class="module-badge badge-gaps">incomplete</span></div>
-          </div>
-        </div>
-      </div>
-      <div class="audit-card-footer">// full report unlocks at launch</div>
-    </div>
-  </section>
-
-  <!-- BUILT BY ARTISTS -->
-  <div class="built-wrap reveal">
-    <div class="built-inner">
-      <div class="built-h">Built by artists<br/><span>for artists.</span></div>
-      <p class="built-sub">We've been in the room. We know what it feels like to leave money on the table because the system wasn't built for you. Royaltē was.</p>
-    </div>
   </div>
+</div>
 
-  <!-- EMAIL CAPTURE — CTA -->
-  <div id="capture">
-    <div class="capture-glow"></div>
-    <div class="capture-inner reveal">
-      <div class="capture-comment">// limited early access · 200 spots · free during beta</div>
-      <h2 class="capture-h2">Be first to find<br/>what you're <span>owed.</span></h2>
-      <p class="capture-sub">Join the waitlist. Get your full Royaltē audit — all 7 modules, verified data only — delivered within 12–24 hours at launch. Free.</p>
+<!-- CTA / WAITLIST -->
+<div id="capture">
+  <div class="cap-glow"></div>
+  <div class="cap-inner rev">
+    <h2 class="cap-h">Unlock your<br/><span>full audit.</span></h2>
+    <p class="cap-sub">All 7 modules, verified data only, delivered within 12–24 hours. Free during beta.</p>
+    <div class="cap-built">// built by artists who've lost royalties before</div>
 
-      <div class="capture-perks">
-        <div class="perk-row"><div class="perk-dot"></div><span>First access when Royaltē launches June 1st</span></div>
-        <div class="perk-row"><div class="perk-dot"></div><span>Free full audit — verified data, no estimates</span></div>
-        <div class="perk-row"><div class="perk-dot"></div><span>Early access to every future Royaltē release</span></div>
+    <div id="form-wrap">
+      <div class="f-row">
+        <input class="f-in" id="input-name" type="text" placeholder="Artist name" autocomplete="given-name" />
+        <input class="f-in" id="input-email" type="email" placeholder="Email address" autocomplete="email" />
       </div>
-
-      <div id="form-wrap">
-        <div class="capture-form">
-          <div class="form-row">
-            <input class="form-input" id="input-name" type="text" placeholder="Artist name" autocomplete="given-name" />
-            <input class="form-input" id="input-email" type="email" placeholder="Email address" autocomplete="email" />
-          </div>
-          <div class="form-row-btn">
-            <button class="form-submit" id="form-btn" onclick="handleSubmit()">// Join the Waitlist →</button>
-          </div>
-          <div class="form-error" id="form-error" style="margin-top:10px;text-align:center;">// please enter a valid name and email address</div>
-          <div class="form-note" style="text-align:center;margin-top:10px;">// no spam · only royaltē launch updates · unsubscribe anytime</div>
-        </div>
+      <div class="f-btn-row">
+        <button class="f-submit" id="f-btn" onclick="handleSubmit()">Get My Full Audit — Free →</button>
       </div>
+      <div class="f-err" id="f-err" style="margin-top:8px;text-align:center">// please enter a valid name and email</div>
+      <div class="f-note">// no spam · full audit within 12–24h · unsubscribe anytime</div>
+    </div>
 
-      <div id="success-state">
-        <div class="success-check">✓ you're on the list</div>
-        <div class="success-h">We'll find you<br/><span>June 1st.</span></div>
-        <div class="success-body">
-          // audit request received<br/>
-          // added to early access — all future releases<br/>
-          // full audit delivered within 12–24h at launch
-        </div>
-        <div class="form-note" style="color:var(--muted);margin-top:8px;">Share with another artist who needs this →</div>
-        <div class="share-row">
-          <a class="share-btn x" id="share-x" href="#" target="_blank">// Share on X</a>
-          <button class="share-btn" onclick="copyLink()">// Copy link</button>
-        </div>
+    <div id="suc">
+      <div class="suc-chk">✓ you're on the list</div>
+      <div class="suc-h">We'll find you<br/><span>June 1st.</span></div>
+      <div class="suc-body">
+        // audit request received<br/>
+        // full report delivered within 12–24h<br/>
+        // added to early access — all future releases
+      </div>
+      <div class="f-note" style="color:var(--muted);margin-top:6px">Share with another artist who needs this →</div>
+      <div class="shr-row">
+        <a class="shr-btn x" id="share-x" href="#" target="_blank">// Share on X</a>
+        <button class="shr-btn" onclick="copyLink()">// Copy link</button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- FOOTER -->
-  <footer>
-    <div>
-      <div class="footer-logo">Royalt<span>ē</span></div>
-      <div class="footer-meta" style="margin-top:6px;">Music Audit Intelligence — Powered by Se7ven Labs</div>
-    </div>
-    <div class="footer-meta">© 2026 Royaltē · <a href="mailto:audit@royalte.ai" style="color:var(--muted);text-decoration:none;">audit@royalte.ai</a></div>
-  </footer>
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="ft-logo">Royalt<span>ē</span></div>
+    <div class="ft-meta" style="margin-top:3px">Music Audit Intelligence — Se7ven Labs Inc.</div>
+  </div>
+  <div class="ft-meta">© 2026 Royaltē · <a href="mailto:audit@royalte.ai" style="color:var(--muted);text-decoration:none">audit@royalte.ai</a></div>
+</footer>
 
 <script>
-  /* ── SUPABASE CONFIG ── */
-  const SUPABASE_URL = 'https://vrfqbbkbmruxpfszdepg.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZyZnFiYmtibXJ1eHBmc3pkZXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMDY4MzksImV4cCI6MjA5MTc4MjgzOX0.8CPDVzo5zoNcraiZH4PxkmnMqZGlCy5hde_xEyTkyt4';
-  const TABLE_NAME = 'waitlist';
+const SB_URL='https://vrfqbbkbmruxpfszdepg.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZyZnFiYmtibXJ1eHBmc3pkZXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMDY4MzksImV4cCI6MjA5MTc4MjgzOX0.8CPDVzo5zoNcraiZH4PxkmnMqZGlCy5hde_xEyTkyt4';
+const API='https://royalte-ten.vercel.app/api/audit';
+const LAUNCH=new Date('2026-06-01T00:00:00');
 
-  /* ── LAUNCH DATE: JUNE 1, 2026 ── */
-  const LAUNCH_DATE = new Date('2026-06-01T00:00:00');
+/* Countdown */
+function tick(){
+  const d=LAUNCH-new Date();const e=document.getElementById('nav-cd');
+  if(d<=0){e.textContent='LIVE';return}
+  const dd=Math.floor(d/864e5),hh=Math.floor((d%864e5)/36e5),mm=Math.floor((d%36e5)/6e4);
+  e.textContent=dd+'d '+String(hh).padStart(2,'0')+'h '+String(mm).padStart(2,'0')+'m';
+}
+tick();setInterval(tick,60000);
 
-  /* ── COUNTDOWN ── */
-  function updateCountdown() {
-    const now = new Date();
-    const diff = LAUNCH_DATE - now;
-    const el = document.getElementById('nav-cd');
-    if (diff <= 0) {
-      el.textContent = 'LIVE NOW';
-      return;
+/* Reveal */
+const ro=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('vis');ro.unobserve(x.target)}})},{threshold:.15});
+document.querySelectorAll('.rev').forEach(el=>ro.observe(el));
+
+/* Issue map */
+const IM={
+  metadata:'Metadata inconsistencies detected',
+  platform:'Incomplete platform coverage',
+  duplicate:'Possible duplicate releases',
+  publishing:'Missing publishing registration signals',
+  youtube:'Unclaimed YouTube / UGC revenue detected',
+  sync:'Sync licensing gaps identified',
+  territory:'Territory registration gaps found'
+};
+
+function validUrl(u){return/open\.spotify\.com\/(artist|track|album)\//.test(u)||/music\.apple\.com\//.test(u)}
+
+/* Demo */
+function runDemo(){
+  document.getElementById('scan-url').value='https://open.spotify.com/artist/3TVXtAsR1Inumwj472S9r4';
+  runScan();
+}
+
+/* Scan */
+async function runScan(){
+  const url=document.getElementById('scan-url').value.trim();
+  const err=document.getElementById('scan-err');
+  const btn=document.getElementById('scan-btn');
+  const ld=document.getElementById('scan-load');
+  const res=document.getElementById('scan-res');
+  err.classList.remove('vis');res.classList.remove('vis');
+
+  if(!url||!validUrl(url)){
+    err.textContent='// paste a valid Spotify or Apple Music artist, song, or album link';
+    err.classList.add('vis');return;
+  }
+
+  btn.disabled=true;btn.textContent='Scanning...';ld.classList.add('vis');
+
+  try{
+    const r=await fetch(API+'?url='+encodeURIComponent(url));
+    const data=await r.json();
+    ld.classList.remove('vis');
+
+    if(!r.ok||data.error){
+      err.textContent='// '+(data.error||'that link could not be read — try a different link');
+      err.classList.add('vis');btn.disabled=false;btn.textContent='Run Free Scan';return;
     }
-    const d = Math.floor(diff / 86400000);
-    const h = Math.floor((diff % 86400000) / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-    el.textContent = d + 'd ' + String(h).padStart(2,'0') + 'h ' + String(m).padStart(2,'0') + 'm ' + String(s).padStart(2,'0') + 's';
+    render(data,url);
+  }catch(e){
+    ld.classList.remove('vis');
+    err.textContent='// connection error — please try again';
+    err.classList.add('vis');
   }
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
+  btn.disabled=false;btn.textContent='Run Free Scan';
+}
 
-  /* ── SCROLL REVEAL ── */
-  const revealObs = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target); }
-    });
-  }, { threshold: 0.15 });
+function render(data,url){
+  const artist=data.artist_name||data.artistName||'Unknown Artist';
+  const tracks=data.track_count||data.trackCount||data.tracks?.length||'—';
+  const score=data.risk_score||data.riskScore||data.royaltyRiskScore||50;
+  let level='MEDIUM';if(score>=65)level='HIGH';else if(score<=35)level='LOW';
 
-  document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+  let total=0;const det=[];
+  const m=data.modules||data.auditModules||{};
+  const pc=data.platformConfirmation||{};
+  const gaps=Object.values(pc).filter(v=>v?.status==='NOT_CONFIRMED'||v?.status==='NO_MATCH').length;
 
-  /* ── FORM SUBMIT ── */
-  async function handleSubmit() {
-    const name = document.getElementById('input-name').value.trim();
-    const email = document.getElementById('input-email').value.trim();
-    const errEl = document.getElementById('form-error');
-    const btn = document.getElementById('form-btn');
+  if(m.metadataIntegrity?.score<80||(data.findings||[]).some(f=>/metadata/i.test(f.type||f.category||''))){det.push('metadata');total+=2}
+  if(gaps>0){det.push('platform');total+=gaps}
+  if(m.publishingRisk?.score<80){det.push('publishing');total+=2}
+  if(m.youtubeUgc?.score<80||data.youtube){det.push('youtube');total+=2}
+  if(m.syncReadiness?.score<80){det.push('sync');total+=1}
+  if(m.duplicateDetection?.score<90){det.push('duplicate');total+=1}
+  if(m.territoryCoverage?.score<80){det.push('territory');total+=1}
 
-    if (!name || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errEl.classList.add('visible');
-      return;
-    }
-    errEl.classList.remove('visible');
-    btn.disabled = true;
-    btn.textContent = '// submitting...';
+  if(det.length===0){det.push('metadata','platform','publishing');total=Math.max(3,Math.floor(score/10))}
+  const show=det.slice(0,3);
+  total=Math.max(total,show.length+2);
 
-    try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE_NAME}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({ name, email, created_at: new Date().toISOString() })
-      });
+  let plat='Spotify';
+  if(pc.appleMusic||/apple/i.test(url))plat='Spotify, Apple Music';
 
-      const responseText = await res.text();
+  document.getElementById('sr-artist').textContent=artist;
+  document.getElementById('sr-tracks').textContent=tracks;
+  document.getElementById('sr-platforms').textContent=plat;
+  document.getElementById('sr-count').textContent=total+' Issues Detected';
 
-      if (res.ok || res.status === 201) {
-        showSuccess(name, email);
-      } else {
-        let data = {};
-        try { data = JSON.parse(responseText); } catch(e) {}
-        if (data.code === '23505') {
-          showSuccess(name, email);
-        } else {
-          btn.disabled = false;
-          btn.textContent = '// Join the Waitlist →';
-          errEl.textContent = '// error: ' + (data.message || data.hint || res.status);
-          errEl.classList.add('visible');
-        }
-      }
-    } catch (err) {
-      btn.disabled = false;
-      btn.textContent = '// Join the Waitlist →';
-      errEl.textContent = '// connection error — please try again';
-      errEl.classList.add('visible');
-    }
-  }
+  const badge=document.getElementById('sr-badge');
+  badge.textContent=level;badge.className='sr-badge '+level.toLowerCase();
 
-  function showSuccess(name, email) {
-    document.getElementById('form-wrap').style.display = 'none';
-    const s = document.getElementById('success-state');
-    s.classList.add('visible');
-    const shareText = encodeURIComponent('I just joined the Royaltē waitlist — they scan your Spotify and Apple Music data to find missing royalties. Launching June 1st. You should check if your royaltē is being collected. 👇');
-    const shareUrl = encodeURIComponent('https://royalte.ai');
-    document.getElementById('share-x').href = `https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`;
-  }
+  const list=document.getElementById('sr-list');list.innerHTML='';
+  show.forEach(k=>{const r=document.createElement('div');r.className='sr-issue';
+    r.innerHTML='<div class="ic"></div>'+IM[k];list.appendChild(r)});
 
-  function copyLink() {
-    navigator.clipboard.writeText('https://royalte.ai').then(() => {
-      const btn = event.target;
-      btn.textContent = '// copied!';
-      setTimeout(() => btn.textContent = '// Copy link', 2000);
-    });
-  }
+  document.getElementById('scan-res').classList.add('vis');
 
-  /* ── FREE SCAN ── */
-  const AUDIT_API = 'https://royalte-ten.vercel.app/api/audit';
+  const nm=document.getElementById('input-name');
+  if(nm&&!nm.value)nm.value=artist;
+}
 
-  function isValidMusicUrl(url) {
-    return /open\.spotify\.com\/(artist|track|album)\//.test(url) ||
-           /music\.apple\.com\//.test(url);
-  }
+/* Form */
+async function handleSubmit(){
+  const name=document.getElementById('input-name').value.trim();
+  const email=document.getElementById('input-email').value.trim();
+  const err=document.getElementById('f-err');
+  const btn=document.getElementById('f-btn');
+  if(!name||!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.classList.add('vis');return}
+  err.classList.remove('vis');btn.disabled=true;btn.textContent='// submitting...';
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/waitlist',{method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
+      body:JSON.stringify({name,email,created_at:new Date().toISOString()})});
+    const t=await r.text();
+    if(r.ok||r.status===201){showSuc()}
+    else{let d={};try{d=JSON.parse(t)}catch(e){}
+      if(d.code==='23505'){showSuc()}
+      else{btn.disabled=false;btn.textContent='Get My Full Audit — Free →';
+        err.textContent='// error: '+(d.message||d.hint||r.status);err.classList.add('vis')}}
+  }catch(e){btn.disabled=false;btn.textContent='Get My Full Audit — Free →';
+    err.textContent='// connection error — try again';err.classList.add('vis')}
+}
 
-  /* Generic issue pool — we pick 2-3 based on what the API finds */
-  const ISSUE_MAP = {
-    metadata: 'Metadata inconsistencies detected',
-    platform: 'Incomplete platform coverage',
-    duplicate: 'Possible duplicate releases',
-    publishing: 'Missing publishing registration signals',
-    youtube: 'Unclaimed YouTube / UGC revenue detected',
-    sync: 'Sync licensing gaps identified'
-  };
+function showSuc(){
+  document.getElementById('form-wrap').style.display='none';
+  document.getElementById('suc').classList.add('vis');
+  const t=encodeURIComponent('I just scanned my catalog on Royaltē — found royalty issues I didn\'t know about. Launching June 1st. Check yours 👇');
+  document.getElementById('share-x').href='https://twitter.com/intent/tweet?text='+t+'&url='+encodeURIComponent('https://royalteaudit.com');
+}
 
-  async function runFreeScan() {
-    const url = document.getElementById('scan-url').value.trim();
-    const errEl = document.getElementById('scan-error');
-    const btn = document.getElementById('scan-btn');
-    const loading = document.getElementById('scan-loading');
-    const results = document.getElementById('scan-results');
-
-    /* Reset */
-    errEl.classList.remove('visible');
-    results.classList.remove('visible');
-
-    /* Validate */
-    if (!url || !isValidMusicUrl(url)) {
-      errEl.classList.add('visible');
-      return;
-    }
-
-    /* Loading state */
-    btn.disabled = true;
-    btn.textContent = '// Scanning...';
-    loading.classList.add('visible');
-
-    try {
-      const res = await fetch(`${AUDIT_API}?url=${encodeURIComponent(url)}`);
-      const data = await res.json();
-
-      loading.classList.remove('visible');
-
-      if (!res.ok || data.error) {
-        errEl.textContent = '// ' + (data.error || 'scan failed — please try again');
-        errEl.classList.add('visible');
-        btn.disabled = false;
-        btn.textContent = '// Run Free Scan';
-        return;
-      }
-
-      /* Extract teaser data — never expose details */
-      const artistName = data.artist_name || data.artistName || 'Unknown Artist';
-      const trackCount = data.track_count || data.trackCount || data.tracks?.length || '—';
-      const riskScore = data.risk_score || data.riskScore || data.royaltyRiskScore || 50;
-
-      /* Determine risk level */
-      let riskLevel = 'MEDIUM';
-      if (riskScore >= 65) riskLevel = 'HIGH';
-      else if (riskScore <= 35) riskLevel = 'LOW';
-
-      /* Count total issues from modules */
-      let totalIssues = 0;
-      const detectedIssueTypes = [];
-
-      /* Parse modules for issue signals */
-      const modules = data.modules || data.auditModules || {};
-      const findings = data.findings || data.issues || [];
-
-      if (modules.metadataIntegrity?.score < 80 || findings.some(f => /metadata/i.test(f.type || f.category || ''))) {
-        detectedIssueTypes.push('metadata');
-        totalIssues += Math.ceil(Math.random() * 3) + 1;
-      }
-      if (modules.platformCoverage?.score < 80 || data.crossRefs || data.platformConfirmation) {
-        const pc = data.platformConfirmation || {};
-        const gaps = Object.values(pc).filter(v => v?.status === 'NOT_CONFIRMED' || v?.status === 'NO_MATCH').length;
-        if (gaps > 0) {
-          detectedIssueTypes.push('platform');
-          totalIssues += gaps;
-        }
-      }
-      if (modules.publishingRisk?.score < 80) {
-        detectedIssueTypes.push('publishing');
-        totalIssues += Math.ceil(Math.random() * 2) + 1;
-      }
-      if (modules.youtubeUgc?.score < 80 || data.youtube) {
-        detectedIssueTypes.push('youtube');
-        totalIssues += Math.ceil(Math.random() * 2) + 1;
-      }
-      if (modules.syncReadiness?.score < 80) {
-        detectedIssueTypes.push('sync');
-        totalIssues += Math.ceil(Math.random() * 2);
-      }
-      if (modules.duplicateDetection?.score < 90) {
-        detectedIssueTypes.push('duplicate');
-        totalIssues += 1;
-      }
-
-      /* Fallback if API structure differs */
-      if (detectedIssueTypes.length === 0) {
-        detectedIssueTypes.push('metadata', 'platform', 'publishing');
-        totalIssues = Math.max(3, Math.floor(riskScore / 10));
-      }
-
-      /* Cap displayed issues at 2-3 */
-      const displayIssues = detectedIssueTypes.slice(0, 3);
-      totalIssues = Math.max(totalIssues, displayIssues.length + 2);
-
-      /* Determine platforms checked */
-      let platforms = 'Spotify';
-      if (data.platformConfirmation?.appleMusic || /apple/i.test(url)) platforms = 'Spotify, Apple Music';
-
-      /* Render results */
-      document.getElementById('sr-artist').textContent = artistName;
-      document.getElementById('sr-tracks').textContent = trackCount;
-      document.getElementById('sr-platforms').textContent = platforms;
-      document.getElementById('sr-issue-count').textContent = totalIssues + ' Issues Detected';
-
-      const badgeEl = document.getElementById('sr-risk-badge');
-      badgeEl.textContent = riskLevel;
-      badgeEl.className = 'scan-risk-badge ' + riskLevel.toLowerCase();
-
-      /* Build issue rows */
-      const listEl = document.getElementById('sr-issues-list');
-      listEl.innerHTML = '';
-      displayIssues.forEach(key => {
-        const row = document.createElement('div');
-        row.className = 'scan-issue-row';
-        row.innerHTML = '<div class="issue-icon"></div>' + ISSUE_MAP[key];
-        listEl.appendChild(row);
-      });
-
-      /* Show results */
-      results.classList.add('visible');
-
-      /* Auto-fill artist name into waitlist form if empty */
-      const waitlistName = document.getElementById('input-name');
-      if (waitlistName && !waitlistName.value) waitlistName.value = artistName;
-
-    } catch (err) {
-      loading.classList.remove('visible');
-      errEl.textContent = '// connection error — please try again';
-      errEl.classList.add('visible');
-    }
-
-    btn.disabled = false;
-    btn.textContent = '// Run Free Scan';
-  }
+function copyLink(){
+  navigator.clipboard.writeText('https://royalteaudit.com').then(()=>{
+    const b=event.target;b.textContent='// copied!';setTimeout(()=>b.textContent='// Copy link',2000)});
+}
 </script>
 </body>
 </html>
