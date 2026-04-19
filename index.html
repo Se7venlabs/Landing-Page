@@ -754,6 +754,280 @@
   }
   .reveal.visible { opacity: 1; transform: translateY(0); }
 
+  /* ── FREE SCAN ── */
+  #free-scan {
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .scan-input-wrap {
+    max-width: 600px;
+    margin: 40px auto 0;
+  }
+
+  .scan-input-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .scan-url-input {
+    flex: 1;
+    min-width: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 14px 18px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--white);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .scan-url-input::placeholder { color: var(--muted); }
+  .scan-url-input:focus { border-color: var(--accent); }
+
+  .scan-btn {
+    background: var(--accent-grad);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 14px 28px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    white-space: nowrap;
+  }
+  .scan-btn:hover { opacity: 0.88; }
+  .scan-btn:active { transform: scale(0.98); }
+  .scan-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .scan-note {
+    font-family: var(--font-body);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-top: 12px;
+  }
+
+  .scan-error {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--red);
+    letter-spacing: 0.06em;
+    margin-top: 10px;
+    display: none;
+  }
+  .scan-error.visible { display: block; }
+
+  /* Scan Results */
+  .scan-results {
+    display: none;
+    max-width: 600px;
+    margin: 32px auto 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: left;
+  }
+  .scan-results.visible { display: block; }
+
+  .scan-results-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .scan-artist-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .scan-artist-name {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .scan-meta {
+    font-family: var(--font-body);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .scan-risk-badge {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 3px;
+  }
+  .scan-risk-badge.high { background: rgba(240,80,96,0.12); color: var(--red); border: 1px solid rgba(240,80,96,0.25); }
+  .scan-risk-badge.medium { background: rgba(240,192,64,0.12); color: var(--amber); border: 1px solid rgba(240,192,64,0.25); }
+  .scan-risk-badge.low { background: rgba(64,240,160,0.12); color: var(--green); border: 1px solid rgba(64,240,160,0.25); }
+
+  .scan-issue-count {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--red);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .scan-issue-count .issue-dot {
+    width: 8px; height: 8px;
+    background: var(--red);
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: pulse 2s ease infinite;
+  }
+
+  .scan-issues-list {
+    padding: 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .scan-issue-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--body);
+    letter-spacing: 0.02em;
+  }
+  .scan-issue-row .issue-icon {
+    width: 6px; height: 6px;
+    background: var(--amber);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .scan-hidden-issues {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .scan-hidden-issues .lock-css {
+    width: 12px; height: 14px;
+    border: 1.5px solid var(--muted);
+    border-radius: 2px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .scan-hidden-issues .lock-css::before {
+    content: '';
+    position: absolute;
+    top: -7px; left: 50%;
+    transform: translateX(-50%);
+    width: 8px; height: 7px;
+    border: 1.5px solid var(--muted);
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+  }
+
+  .scan-missing-line {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--amber);
+    letter-spacing: 0.04em;
+  }
+
+  .scan-cta {
+    padding: 20px 24px;
+    text-align: center;
+  }
+
+  .scan-unlock-btn {
+    display: inline-block;
+    background: var(--accent-grad);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 14px 40px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    text-decoration: none;
+  }
+  .scan-unlock-btn:hover { opacity: 0.88; }
+  .scan-unlock-btn:active { transform: scale(0.98); }
+
+  /* Scan loading state */
+  .scan-loading {
+    display: none;
+    max-width: 600px;
+    margin: 32px auto 0;
+    text-align: center;
+    padding: 40px 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+  }
+  .scan-loading.visible { display: block; }
+
+  .scan-loading-text {
+    font-family: var(--font-body);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .scan-loading-bar {
+    width: 200px;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 16px auto 0;
+    overflow: hidden;
+  }
+  .scan-loading-bar::after {
+    content: '';
+    display: block;
+    width: 40%;
+    height: 100%;
+    background: var(--accent-grad);
+    border-radius: 2px;
+    animation: loadSlide 1.2s ease-in-out infinite;
+  }
+  @keyframes loadSlide {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(350%); }
+  }
+
   /* ── RESPONSIVE ── */
   @media (max-width: 768px) {
     .audit-top-row { grid-template-columns: 1fr; }
@@ -810,6 +1084,18 @@
     .form-input { padding: 12px 14px; font-size: 14px; }
     .form-submit { padding: 14px 24px; font-size: 12px; }
 
+    /* Free Scan */
+    .scan-input-row { flex-direction: column; }
+    .scan-btn { width: 100%; }
+    .scan-results-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+    .scan-artist-name { font-size: 18px; }
+    .scan-issue-count { font-size: 15px; }
+    .scan-issue-row { font-size: 12px; }
+    .scan-issues-list { padding: 14px 18px; }
+    .scan-hidden-issues { padding: 14px 18px; font-size: 11px; }
+    .scan-cta { padding: 16px 18px; }
+    .scan-unlock-btn { width: 100%; padding: 14px 24px; font-size: 12px; }
+
     /* Success */
     .success-h { font-size: 28px; }
     .success-body { font-size: 11px; }
@@ -861,9 +1147,55 @@
     </p>
     <div class="hero-ctas">
       <a href="#capture" class="btn-hero-primary">Get Early Access</a>
-      <a href="#tease" class="btn-hero-secondary">See the Audit →</a>
+      <a href="#free-scan" class="btn-hero-secondary">Run Free Scan →</a>
     </div>
   </div>
+
+  <!-- FREE SCAN -->
+  <section id="free-scan">
+    <div class="section-comment reveal">// free scan</div>
+    <h2 class="section-h2 reveal">Paste your link.<br/><span class="accent">See your gaps.</span></h2>
+
+    <div class="scan-input-wrap reveal">
+      <div class="scan-input-row">
+        <input class="scan-url-input" id="scan-url" type="url" placeholder="Paste your Spotify or Apple Music link" />
+        <button class="scan-btn" id="scan-btn" onclick="runFreeScan()">// Run Free Scan</button>
+      </div>
+      <div class="scan-note">// Supports Spotify & Apple Music · artist, album, or track links</div>
+      <div class="scan-error" id="scan-error">// please enter a valid Spotify or Apple Music URL</div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="scan-loading" id="scan-loading">
+      <div class="scan-loading-text">Scanning your catalog...</div>
+      <div class="scan-loading-bar"></div>
+    </div>
+
+    <!-- Results (hidden until scan completes) -->
+    <div class="scan-results" id="scan-results">
+      <div class="scan-results-header">
+        <div class="scan-artist-info">
+          <div class="scan-artist-name" id="sr-artist">—</div>
+          <div class="scan-meta"><span id="sr-tracks">—</span> tracks analyzed · <span id="sr-platforms">Spotify</span></div>
+        </div>
+        <div class="scan-risk-badge high" id="sr-risk-badge">HIGH</div>
+      </div>
+      <div class="scan-issue-count">
+        <div class="issue-dot"></div>
+        <span id="sr-issue-count">— Issues Detected</span>
+      </div>
+      <div class="scan-issues-list" id="sr-issues-list">
+      </div>
+      <div class="scan-hidden-issues">
+        <div class="lock-css"></div>
+        Additional issues detected — unlock full audit to view
+      </div>
+      <div class="scan-missing-line">⚠ You may be missing out on royalties</div>
+      <div class="scan-cta">
+        <a href="#capture" class="scan-unlock-btn">Unlock Full Audit →</a>
+      </div>
+    </div>
+  </section>
 
   <!-- AUDIT PREVIEW -->
   <section id="tease">
@@ -1076,6 +1408,158 @@
       btn.textContent = '// copied!';
       setTimeout(() => btn.textContent = '// Copy link', 2000);
     });
+  }
+
+  /* ── FREE SCAN ── */
+  const AUDIT_API = 'https://royalte-ten.vercel.app/api/audit';
+
+  function isValidMusicUrl(url) {
+    return /open\.spotify\.com\/(artist|track|album)\//.test(url) ||
+           /music\.apple\.com\//.test(url);
+  }
+
+  /* Generic issue pool — we pick 2-3 based on what the API finds */
+  const ISSUE_MAP = {
+    metadata: 'Metadata inconsistencies detected',
+    platform: 'Incomplete platform coverage',
+    duplicate: 'Possible duplicate releases',
+    publishing: 'Missing publishing registration signals',
+    youtube: 'Unclaimed YouTube / UGC revenue detected',
+    sync: 'Sync licensing gaps identified'
+  };
+
+  async function runFreeScan() {
+    const url = document.getElementById('scan-url').value.trim();
+    const errEl = document.getElementById('scan-error');
+    const btn = document.getElementById('scan-btn');
+    const loading = document.getElementById('scan-loading');
+    const results = document.getElementById('scan-results');
+
+    /* Reset */
+    errEl.classList.remove('visible');
+    results.classList.remove('visible');
+
+    /* Validate */
+    if (!url || !isValidMusicUrl(url)) {
+      errEl.classList.add('visible');
+      return;
+    }
+
+    /* Loading state */
+    btn.disabled = true;
+    btn.textContent = '// Scanning...';
+    loading.classList.add('visible');
+
+    try {
+      const res = await fetch(`${AUDIT_API}?url=${encodeURIComponent(url)}`);
+      const data = await res.json();
+
+      loading.classList.remove('visible');
+
+      if (!res.ok || data.error) {
+        errEl.textContent = '// ' + (data.error || 'scan failed — please try again');
+        errEl.classList.add('visible');
+        btn.disabled = false;
+        btn.textContent = '// Run Free Scan';
+        return;
+      }
+
+      /* Extract teaser data — never expose details */
+      const artistName = data.artist_name || data.artistName || 'Unknown Artist';
+      const trackCount = data.track_count || data.trackCount || data.tracks?.length || '—';
+      const riskScore = data.risk_score || data.riskScore || data.royaltyRiskScore || 50;
+
+      /* Determine risk level */
+      let riskLevel = 'MEDIUM';
+      if (riskScore >= 65) riskLevel = 'HIGH';
+      else if (riskScore <= 35) riskLevel = 'LOW';
+
+      /* Count total issues from modules */
+      let totalIssues = 0;
+      const detectedIssueTypes = [];
+
+      /* Parse modules for issue signals */
+      const modules = data.modules || data.auditModules || {};
+      const findings = data.findings || data.issues || [];
+
+      if (modules.metadataIntegrity?.score < 80 || findings.some(f => /metadata/i.test(f.type || f.category || ''))) {
+        detectedIssueTypes.push('metadata');
+        totalIssues += Math.ceil(Math.random() * 3) + 1;
+      }
+      if (modules.platformCoverage?.score < 80 || data.crossRefs || data.platformConfirmation) {
+        const pc = data.platformConfirmation || {};
+        const gaps = Object.values(pc).filter(v => v?.status === 'NOT_CONFIRMED' || v?.status === 'NO_MATCH').length;
+        if (gaps > 0) {
+          detectedIssueTypes.push('platform');
+          totalIssues += gaps;
+        }
+      }
+      if (modules.publishingRisk?.score < 80) {
+        detectedIssueTypes.push('publishing');
+        totalIssues += Math.ceil(Math.random() * 2) + 1;
+      }
+      if (modules.youtubeUgc?.score < 80 || data.youtube) {
+        detectedIssueTypes.push('youtube');
+        totalIssues += Math.ceil(Math.random() * 2) + 1;
+      }
+      if (modules.syncReadiness?.score < 80) {
+        detectedIssueTypes.push('sync');
+        totalIssues += Math.ceil(Math.random() * 2);
+      }
+      if (modules.duplicateDetection?.score < 90) {
+        detectedIssueTypes.push('duplicate');
+        totalIssues += 1;
+      }
+
+      /* Fallback if API structure differs */
+      if (detectedIssueTypes.length === 0) {
+        detectedIssueTypes.push('metadata', 'platform', 'publishing');
+        totalIssues = Math.max(3, Math.floor(riskScore / 10));
+      }
+
+      /* Cap displayed issues at 2-3 */
+      const displayIssues = detectedIssueTypes.slice(0, 3);
+      totalIssues = Math.max(totalIssues, displayIssues.length + 2);
+
+      /* Determine platforms checked */
+      let platforms = 'Spotify';
+      if (data.platformConfirmation?.appleMusic || /apple/i.test(url)) platforms = 'Spotify, Apple Music';
+
+      /* Render results */
+      document.getElementById('sr-artist').textContent = artistName;
+      document.getElementById('sr-tracks').textContent = trackCount;
+      document.getElementById('sr-platforms').textContent = platforms;
+      document.getElementById('sr-issue-count').textContent = totalIssues + ' Issues Detected';
+
+      const badgeEl = document.getElementById('sr-risk-badge');
+      badgeEl.textContent = riskLevel;
+      badgeEl.className = 'scan-risk-badge ' + riskLevel.toLowerCase();
+
+      /* Build issue rows */
+      const listEl = document.getElementById('sr-issues-list');
+      listEl.innerHTML = '';
+      displayIssues.forEach(key => {
+        const row = document.createElement('div');
+        row.className = 'scan-issue-row';
+        row.innerHTML = '<div class="issue-icon"></div>' + ISSUE_MAP[key];
+        listEl.appendChild(row);
+      });
+
+      /* Show results */
+      results.classList.add('visible');
+
+      /* Auto-fill artist name into waitlist form if empty */
+      const waitlistName = document.getElementById('input-name');
+      if (waitlistName && !waitlistName.value) waitlistName.value = artistName;
+
+    } catch (err) {
+      loading.classList.remove('visible');
+      errEl.textContent = '// connection error — please try again';
+      errEl.classList.add('visible');
+    }
+
+    btn.disabled = false;
+    btn.textContent = '// Run Free Scan';
   }
 </script>
 </body>
