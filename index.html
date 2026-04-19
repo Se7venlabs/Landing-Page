@@ -33,10 +33,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   padding:14px 36px;background:rgba(3,3,10,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border2)}
 .nav-logo{font-family:var(--font-display);font-size:22px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
 .nav-logo span{background:var(--accent-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.nav-cd{font-family:var(--font-mono);font-size:10px;color:var(--accent);border:1px solid var(--accent-border);
-  padding:4px 10px;border-radius:2px;display:flex;align-items:center;gap:6px}
-.nav-cd .label{color:var(--muted);font-size:8px;letter-spacing:.1em;text-transform:uppercase}
-.nav-cd .time{font-weight:700}
+.nav-cd{font-family:var(--font-mono);font-size:12px;color:var(--accent);border:1px solid var(--accent-border);
+  padding:6px 14px;border-radius:2px;display:flex;align-items:center;gap:8px}
+.nav-cd .label{color:var(--muted);font-size:9px;letter-spacing:.1em;text-transform:uppercase}
+.nav-cd .time{font-weight:700;font-size:13px}
 
 /* ── HERO ── */
 #hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -70,6 +70,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 
 /* ── SCAN BOX ── */
 .scan-box{opacity:0;animation:fu .7s ease .32s forwards}
+
+.pre-tension{font-family:var(--font-body);font-size:12px;color:var(--amber);letter-spacing:.04em;
+  margin-bottom:18px;opacity:.85}
 
 .scan-row{display:flex;gap:10px;max-width:540px;margin:0 auto}
 .scan-input{flex:1;min-width:0;background:var(--bg-card);
@@ -282,17 +285,18 @@ footer{border-top:1px solid var(--border);padding:28px 36px;display:flex;align-i
   <div class="hero-inner">
 
     <h1 class="hero-h1">Your music is<br/><span class="gr">leaking money.</span></h1>
-    <p class="hero-sub">Run a free scan of your catalog and uncover what's missing in seconds.</p>
+    <p class="hero-sub">Run a free scan and see where your royalties are slipping away.</p>
 
     <div class="scan-box">
+      <div class="pre-tension">Most artists are missing royalties without knowing it</div>
       <div class="scan-row">
         <input class="scan-input" id="scan-url" type="url" placeholder="Paste your Spotify or Apple Music link" />
-        <button class="scan-go" id="scan-btn" onclick="runScan()">Run Free Scan</button>
+        <button class="scan-go" id="scan-btn" onclick="runScan()">Scan My Music</button>
       </div>
       <div class="scan-helper">// artist, track, or album link</div>
       <div class="scan-urgency"><div class="dot"></div>Only 200 artists get a full audit during beta</div>
       <div class="micro-trust"><b>7</b> audit checks · <b>Verified</b> data only · <b>Free</b> during beta</div>
-      <div class="scan-demo"><button class="demo-link" onclick="runDemo()">Try demo — see sample results</button></div>
+      <div class="scan-demo"><button class="demo-link" onclick="runDemo()">Try a sample scan →</button></div>
       <div class="scan-err" id="scan-err"></div>
     </div>
 
@@ -331,7 +335,7 @@ footer{border-top:1px solid var(--border);padding:28px 36px;display:flex;align-i
 <div id="capture">
   <div class="cap-glow"></div>
   <div class="cap-inner rev">
-    <h2 class="cap-h">Unlock your<br/><span>full audit.</span></h2>
+    <h2 class="cap-h">Find out what this is<br/><span>costing you.</span></h2>
     <p class="cap-sub">All 7 modules, verified data only, delivered within 12–24 hours. Free during beta.</p>
     <div class="cap-built">// built by artists who've lost royalties before</div>
 
@@ -403,7 +407,7 @@ const IM={
   territory:'Territory registration gaps found'
 };
 
-function validUrl(u){return/open\.spotify\.com\/(artist|track|album)\//.test(u)||/music\.apple\.com\//.test(u)}
+function validUrl(u){return/spotify\.com\//.test(u)||/music\.apple\.com\//.test(u)}
 
 /* Demo */
 function runDemo(){
@@ -420,8 +424,12 @@ async function runScan(){
   const res=document.getElementById('scan-res');
   err.classList.remove('vis');res.classList.remove('vis');
 
-  if(!url||!validUrl(url)){
-    err.textContent='// paste a valid Spotify or Apple Music artist, song, or album link';
+  if(!url){
+    err.textContent='// paste a Spotify or Apple Music link to scan';
+    err.classList.add('vis');return;
+  }
+  if(!validUrl(url)){
+    err.textContent='// that doesn\'t look like a Spotify or Apple Music link — try again';
     err.classList.add('vis');return;
   }
 
@@ -433,8 +441,8 @@ async function runScan(){
     ld.classList.remove('vis');
 
     if(!r.ok||data.error){
-      err.textContent='// '+(data.error||'that link could not be read — try a different link');
-      err.classList.add('vis');btn.disabled=false;btn.textContent='Run Free Scan';return;
+      err.textContent='// '+(data.error||'that link could not be read — paste an artist, song, or album link and try again');
+      err.classList.add('vis');btn.disabled=false;btn.textContent='Scan My Music';return;
     }
     render(data,url);
   }catch(e){
@@ -442,7 +450,7 @@ async function runScan(){
     err.textContent='// connection error — please try again';
     err.classList.add('vis');
   }
-  btn.disabled=false;btn.textContent='Run Free Scan';
+  btn.disabled=false;btn.textContent='Scan My Music';
 }
 
 function render(data,url){
@@ -484,6 +492,10 @@ function render(data,url){
     r.innerHTML='<div class="ic"></div>'+IM[k];list.appendChild(r)});
 
   document.getElementById('scan-res').classList.add('vis');
+
+  setTimeout(()=>{
+    document.getElementById('scan-res').scrollIntoView({behavior:'smooth',block:'center'});
+  },100);
 
   const nm=document.getElementById('input-name');
   if(nm&&!nm.value)nm.value=artist;
