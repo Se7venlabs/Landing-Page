@@ -1,0 +1,33 @@
+.hero {
+  position: relative;
+  padding: 120px 0;
+  background: radial-gradient(circle at top, #111 0%, #000 100%);
+  overflow: hidden;
+}
+
+.hero h1 {
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.hero p {
+  margin-top: 20px;
+  font-size: 18px;
+  color: var(--text-dim);
+  max-width: 600px;
+}
+
+.hero-buttons {
+  margin-top: 30px;
+  display: flex;
+  gap: 15px;
+}
+
+.hero img {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  max-height: 90%;
+  opacity: 0.9;
+}
